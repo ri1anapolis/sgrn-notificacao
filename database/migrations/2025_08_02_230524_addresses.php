@@ -14,11 +14,7 @@ return new class extends Migration
         Schema::create('addresses', function (Blueprint $table) {
             $table->id();
             $table->foreignId('notified_person_id')->constrained();
-            $table->string('street');
-            $table->string('number');
-            $table->string('complement')->nullable();
-            $table->string('city');
-            $table->string('zip_code');
+            $table->string('address');
             $table->timestamps();
         });
     }

@@ -10,9 +10,6 @@ class AddressData extends Data
 {
     public function __construct(
         public string $hash,
-        public string $street,
-        public string $complement,
-        public string $city,
-        public string $zipCode,
+        public string $address,
     ) {}
 }

@@ -1,10 +1,7 @@
 declare namespace App.Data {
 export type AddressData = {
 hash: string;
-street: string;
-complement: string;
-city: string;
-zipCode: string;
+address: string;
 };
 export type DiligenceData = {
 hash: string;

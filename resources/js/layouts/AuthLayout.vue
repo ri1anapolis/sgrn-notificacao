@@ -3,12 +3,11 @@ import AuthLayout from '@/layouts/auth/AuthSimpleLayout.vue';
 
 defineProps<{
     title?: string;
-    description?: string;
 }>();
 </script>
 
 <template>
-    <AuthLayout :title="title" :description="description">
+    <AuthLayout :title="title" >
         <slot />
     </AuthLayout>
 </template>

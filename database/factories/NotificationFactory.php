@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\NotificationNature;
 use App\Enums\NotificationStatus;
 use App\Models\Notification;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -13,8 +14,8 @@ class NotificationFactory extends Factory
     public function definition(): array
     {
         return [
-            'protocol' => $this->faker->uuid,
-            'nature' => $this->faker->name(),
+            'protocol' => $this->faker->numerify('######'),
+            'nature' => $this->faker->randomElement(NotificationNature::class),
             'status' => $this->faker->randomElement([
                 NotificationStatus::InProgress->value,
                 NotificationStatus::Completed->value,

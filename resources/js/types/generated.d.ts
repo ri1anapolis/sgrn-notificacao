@@ -12,7 +12,9 @@ date: string;
 };
 export type NotificationData = {
 hash: string;
-name: string;
+protocol: string;
+nature: App.Enums.NotificationNature;
+notified_people: any;
 };
 export type UserData = {
 hash: string;
@@ -23,6 +25,7 @@ role: App.Enums.UserRole;
 }
 declare namespace App.Enums {
 export type DiligenceResult = 'not_found';
+export type NotificationNature = 'Alienação Fiduciária de Bem Imóvel' | 'Alienação Fiduciária de Bem Móvel' | 'Compromisso de Compra e Venda Incorporação' | 'Compromisso de Compra e Venda Loteamento' | 'Retificação de Área' | 'Usucapião' | 'Adjudicação' | 'Diversos';
 export type NotificationStatus = 'completed' | 'in_progress';
 export type UserRole = 'admin' | 'employee';
 }

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import CardSection from '@/components/CardSection.vue';
+import SearchCard from '@/components/SearchCard.vue';
 import { usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
@@ -14,11 +14,23 @@ const userRole = computed(() => page.props.auth.user?.role);
     <Head title="Dashboard" />
 
 
-    <AppLayout link-button="logout" text-button="Sair" page-title="Notificação Certa - Sistema Extrajudicial">
+    <AppLayout link-button="logout" text-button="Sair" page-title="Notificação Certa - Sistema Extrajudicial" method="post">
         <div class="max-w-7xl m-auto flex flex-wrap justify-center gap-12 mb-5">
-            <CardSection v-if="userRole == 'admin'" image-url="/images/Card-Tratamento-de-Dados.jpeg" page-url="tratamento-dados.index" />
-            <CardSection image-url="/images/Card-Fase-de-Notificação.png" page-url="fase-notificacao.index" />
-            <CardSection v-if="userRole == 'admin'" image-url="/images/Card-Cartorio-Consulta.png" page-url="consulta-notificacao.index" />            
+            <SearchCard v-if="userRole == 'admin'" 
+            image-url="/images/Card-Tratamento-de-Dados.jpeg" 
+            alt-name="Ilustração de um funcionário em uma mesa, digitando em um notebook para o tratamento de dados." 
+            route-name="notification.stage.index" />
+
+            <SearchCard 
+            image-url="/images/Card-Fase-de-Notificação.png" 
+            alt-name="Ilustração de um notificador ao lado de sua motocicleta, segurando uma prancheta para a fase de notificação." 
+            route-name="notifications.index" />
+
+            <!--<SearchCard v-if="userRole == 'admin'"
+            image-url="/images/Card-Cartorio-Consulta.png" 
+            alt-name="Ilustração de uma pessoa em um computador, consultando uma lista de perfis de notificação." 
+            route-name="notification.stage.index" />-->
+
         </div>
     </AppLayout>
 </template>

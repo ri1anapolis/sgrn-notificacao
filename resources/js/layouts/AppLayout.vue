@@ -15,12 +15,17 @@ const props = defineProps({
     linkButton:{
         type: String,
         required: true,
+    },
+
+    method: {
+        type: String,
+        required: false,
     }
 })
 </script>
 
 <template>
-    <AppLayout :text-button="props.textButton" :page-title="props.pageTitle" :link-button="props.linkButton">
+    <AppLayout :text-button="props.textButton" :page-title="props.pageTitle" :link-button="props.linkButton" :method="props.method">
         <slot />
     </AppLayout>
 </template>

@@ -14,11 +14,7 @@ class AddressFactory extends Factory
     {
         return [
             'notified_person_id' => NotifiedPerson::factory(),
-            'street' => $this->faker->streetName,
-            'number' => $this->faker->buildingNumber,
-            'complement' => $this->faker->optional()->text(20),
-            'city' => $this->faker->city,
-            'zip_code' => $this->faker->postcode,
+            'address' => $this->faker->address,
         ];
     }
 }

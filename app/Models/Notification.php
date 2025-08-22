@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\NotificationNature;
 use App\Enums\NotificationStatus;
 use App\Models\Traits\HashableModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,10 +15,16 @@ class Notification extends Model
 
     protected $casts = [
         'status' => NotificationStatus::class,
+        'nature' => NotificationNature::class,
     ];
 
     public function notifiedPeople(): HasMany
     {
         return $this->hasMany(NotifiedPerson::class);
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'protocol';
     }
 }

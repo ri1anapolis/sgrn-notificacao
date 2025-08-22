@@ -17,6 +17,7 @@ class LoginRequest extends FormRequest
     public function authorize(): bool
     {
         app()->setLocale('pt_BR');
+
         return true;
     }
 

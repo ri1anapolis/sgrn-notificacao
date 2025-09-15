@@ -9,10 +9,12 @@ use Inertia\Inertia;
 
 class NotificationController extends Controller
 {
-    public function index(IndexNotificationRequest $request, Notification $notification)
+    public function show(IndexNotificationRequest $request, Notification $notification)
     {
-        return Inertia::render('NotificationStage/Index', [
-            'notification' => NotificationData::from($notification->load('notifiedPeople.addresses')),
+        return Inertia::render('Notifications/Show', [
+            'notification' => NotificationData::from(
+                $notification->load('notifiedPeople.addresses')
+            ),
         ]);
     }
 }

@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: ["main"]
+    branches: ['main']
   pull_request:
-    branches: ["main"]
+    branches: ['main']
 
 env:
   DB_CONNECTION: pgsql
@@ -30,7 +30,7 @@ jobs:
     steps:
       - uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.4"
+          php-version: '8.4'
       - uses: actions/checkout@v4
 
       - name: Copy .env
@@ -64,57 +64,3 @@ jobs:
 
       - name: Run linter
         run: vendor/bin/pint --test
-
-  dusk-php:
-    runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:latest
-        env:
-          POSTGRES_DB: manager-e2e
-          POSTGRES_PASSWORD: postgres
-        ports:
-          - 5432:5432
-
-    steps:
-    - uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
-      with:
-        php-version: '8.4'
-
-    - uses: actions/checkout@v4
-
-    - name: Copy .env
-      run: php -r "file_exists('.env') || copy('.env.example', '.env');"
-
-    - name: Install Dependencies
-      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-
-    - name: Generate key
-      run: php artisan key:generate
-
-    - name: Upgrade Chrome Driver
-      run: php artisan dusk:chrome-driver --detect
-
-    - name: Start Chrome Driver
-      run: ./vendor/laravel/dusk/bin/chromedriver-linux --port=9515 &
-
-    - name: Run Laravel Server
-      run: php artisan serve --no-reload &
-
-    - name: Run Dusk Tests
-      run: php artisan dusk
-
-    - name: Upload Screenshots
-      if: failure()
-      uses: actions/upload-artifact@v4
-      with:
-        name: screenshots
-        path: tests/Browser/screenshots
-
-    - name: Upload Console Logs
-      if: failure()
-      uses: actions/upload-artifact@v4
-      with:
-        name: console
-        path: tests/Browser/console

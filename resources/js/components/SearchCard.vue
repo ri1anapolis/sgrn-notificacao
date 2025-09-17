@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
-import CardSection from '@/components/CardSection.vue'; 
+import CardSection from '@/components/CardSection.vue';
 
 const props = defineProps({
     imageUrl: {
         type: String,
         required: true,
     },
-    
+
     altName: {
         type: String,
         required: true,
@@ -25,7 +25,7 @@ const form = useForm({
 
 
 const submit = () => {
-  if (!form.protocol) return; 
+  if (!form.protocol) return;
   const formattedProtocol = form.protocol.replace(/\./g, '');
   form.get(route(props.routeName, { notification: formattedProtocol }), {
         preserveState: true,

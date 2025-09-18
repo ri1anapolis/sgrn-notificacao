@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\Notifications\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/notifications/{notification}', [NotificationController::class, 'show'])

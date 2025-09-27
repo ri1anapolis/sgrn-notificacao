@@ -12,10 +12,12 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 class NotificationData extends Data
 {
     public function __construct(
-        public string $hash,
+        public int $id,
         public string $protocol,
         public NotificationNature $nature,
-        #[DataCollectionOf(NotificationPersonData::class)]
-        public DataCollection $notified_people,
+        #[DataCollectionOf(NotifiedPersonData::class)]
+        public ?DataCollection $notified_people,
+        #[DataCollectionOf(AddressData::class)]
+        public ?DataCollection $addresses,
     ) {}
 }

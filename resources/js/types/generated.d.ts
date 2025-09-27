@@ -1,23 +1,34 @@
 declare namespace App.Data {
 export type AddressData = {
-hash: string;
+id: number;
 address: string;
+diligences: any | null;
 };
 export type DiligenceData = {
-hash: string;
-visitNumber: number;
-diligenceResult: App.Enums.DiligenceResult;
-observations: string;
+id: number;
+visit_number: number;
+observations: string | null;
 date: string;
+diligence_result_id: number | null;
+diligence_result: App.Data.DiligenceResultData | null;
+user_id: number | null;
+user: App.Data.UserData | null;
+};
+export type DiligenceResultData = {
+id: number;
+group: string;
+code: string;
+description: string;
 };
 export type NotificationData = {
-hash: string;
+id: number;
 protocol: string;
 nature: App.Enums.NotificationNature;
-notified_people: any;
+notified_people: any | null;
+addresses: any | null;
 };
 export type UserData = {
-hash: string;
+id: number;
 name: string;
 email: string;
 role: App.Enums.UserRole;

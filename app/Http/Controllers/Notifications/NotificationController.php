@@ -13,7 +13,7 @@ class NotificationController extends Controller
     {
         return Inertia::render('Notifications/Show', [
             'notification' => NotificationData::from(
-                $notification->load('notifiedPeople.addresses')
+                $notification->load('notifiedPeople', 'addresses')
             ),
         ]);
     }

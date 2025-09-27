@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Address;
-use App\Models\NotifiedPerson;
+use App\Models\Notification;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class AddressFactory extends Factory
@@ -13,7 +13,7 @@ class AddressFactory extends Factory
     public function definition(): array
     {
         return [
-            'notified_person_id' => NotifiedPerson::factory(),
+            'notification_id' => Notification::factory(),
             'address' => $this->faker->address,
         ];
     }

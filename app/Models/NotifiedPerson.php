@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\Traits\HashableModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class NotifiedPerson extends Model
 {
-    use HasFactory, HashableModel;
+    use HasFactory;
 
     public function notification(): BelongsTo
     {

@@ -6,7 +6,7 @@ use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\DataCollection;
 
-class NotificationPersonData extends Data
+class NotifiedPersonData extends Data
 {
     public function __construct(
         public int $id,

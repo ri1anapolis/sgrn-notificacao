@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { NotificationData } from '@/types/generated';
 import { useProtocolFormatter } from '@/composables/useFormattedProtocol';
 import { computed } from 'vue';
 
 const props = defineProps<{
-  notification: NotificationData;
+    notification: App.Data.NotificationData;
+    address?: App.Data.AddressData;
 }>();
 
 const formattedProtocol = computed(() => useProtocolFormatter(props.notification.protocol));
@@ -12,20 +12,28 @@ const formattedProtocol = computed(() => useProtocolFormatter(props.notification
 
 <template>
     <div
-        class="flex flex-col md:flex-row justify-between gap-5 bg-[#0e1423] border-2 border-[#b3925c] h-auto w-11/12 md:w-full max-w-4xl p-4 md:pl-8 md:pr-15 m-auto mb-6 text-white rounded-lg">
-        <div class="flex flex-row md:flex-col gap-2 md:gap-0">
-            <strong class="font-bold mb-2 text-[#b3925c]">Protocolo: </strong>
+        class="mx-auto mb-6 flex h-auto w-11/12 flex-col justify-between gap-5 rounded-lg border-2 border-[#b3925c] bg-[#0e1423] p-4 px-8 text-lg text-white md:w-4xl md:flex-row">
+        <div class="flex flex-row gap-2 md:flex-col md:gap-0">
+            <strong class="mb-2 font-bold text-[#b3925c]">Protocolo: </strong>
             <p>{{ formattedProtocol }}</p>
         </div>
         <div class="flex flex-col gap-2 md:gap-0">
-            <strong class="font-bold md:mb-2 text-[#b3925c]">Natureza:</strong>
+            <strong class="font-bold text-[#b3925c] md:mb-2">Natureza:</strong>
             <p class="text-[14px]">{{ props.notification.nature }}</p>
         </div>
-        <div class="flex flex-col gap-2 md:gap-0">
-            <strong class="font-bold md:mb-2 text-[#b3925c]">Notificados:</strong>
-            <ul class="text-[14px] md:flex-col md:gap-1 text-white">
-                <li v-for="person in props.notification.notified_people" :key="person.id">
-                    {{ person.name }}
+        <div v-if="address && address.notifiedPeople.length > 0" class="flex flex-col gap-2 md:gap-0">
+            <strong class="mr-20 font-bold text-[#b3925c] md:mb-2">Notificados:</strong>
+            <ul class="text-[14px] text-white md:flex-col md:gap-1">
+                <li v-for="person in address.notifiedPeople" :key="person.id">
+                    {{ person.name }} - {{ person.document }}
+                </li>
+            </ul>
+        </div>
+        <div v-else class="flex flex-col gap-2 md:gap-0">
+            <strong class="mr-20 font-bold text-[#b3925c] md:mb-2">Notificados:</strong>
+            <ul class="text-[14px] text-white md:flex-col md:gap-1">
+                <li v-for="person in notification.notifiedPeople" :key="person.id">
+                    {{ person.name }} - {{ person.document }}
                 </li>
             </ul>
         </div>

@@ -2,17 +2,16 @@
 
 namespace App\Data;
 
-use App\Enums\UserRole;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript]
-class UserData extends Data
+class DiligenceResultData extends Data
 {
     public function __construct(
         public int $id,
-        public string $name,
-        public string $email,
-        public UserRole $role,
+        public string $group,
+        public string $code,
+        public string $description,
     ) {}
 }

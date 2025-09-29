@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
-use App\Enums\DiligenceResult;
 use App\Models\Address;
 use App\Models\Diligence;
+use App\Models\DiligenceResult;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -17,8 +17,8 @@ class DiligenceFactory extends Factory
         return [
             'address_id' => Address::factory(),
             'user_id' => User::factory(),
-            'visit_number' => $this->faker->numberBetween(1, 3),
-            'diligence_result' => $this->faker->randomElement([DiligenceResult::NotFound->value]),
+            'visit_number' => 1,
+            'diligence_result_id' => DiligenceResult::factory(),
             'observations' => $this->faker->optional()->sentence(),
             'date' => $this->faker->dateTimeBetween('-30 days', 'now'),
         ];

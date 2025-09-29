@@ -95,7 +95,7 @@ const saveDiligence = () => {
 
     <Head title="Fase Notificação - Diligência" />
     <AppLayout link-button="dashboard" text-button="Voltar" page-title="Fase de Notificação" method="get">
-        <NotificationStageHeader :notification="notification" class="md:-mt-14" />
+        <NotificationStageHeader :notification="notification" :address="address" class="md:-mt-14" />
 
         <div class="mb-6">
             <AddressDiligence :address="address" />

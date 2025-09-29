@@ -2,7 +2,6 @@
 
 namespace App\Data;
 
-use App\Enums\DiligenceResult;
 use DateTime;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;

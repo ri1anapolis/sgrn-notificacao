@@ -16,7 +16,11 @@ class NotificationDiligenceController extends Controller
 {
     public function show(Notification $notification, Address $address)
     {
-        $address->load(['diligences.diligenceResult', 'diligences.user']);
+        $address->load([
+            'diligences.diligenceResult',
+            'diligences.user',
+            'notifiedPeople',
+        ]);
 
         $diligenceResults = DiligenceResult::all();
 

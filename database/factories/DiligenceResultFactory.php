@@ -19,7 +19,7 @@ class DiligenceResultFactory extends Factory
      */
     public function definition(): array
     {
-         return [
+        return [
             'group' => 'Devedor Presente – Notificação Realizada Com Sucesso',
             'code' => $this->faker->unique()->slug,
             'description' => $this->faker->sentence,

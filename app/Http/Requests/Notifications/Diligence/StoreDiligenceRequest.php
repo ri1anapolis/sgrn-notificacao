@@ -2,9 +2,7 @@
 
 namespace App\Http\Requests\Notifications\Diligence;
 
-use App\Enums\DiligenceResult;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Enum;
 
 class StoreDiligenceRequest extends FormRequest
 {

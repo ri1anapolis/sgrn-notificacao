@@ -15,5 +15,7 @@ class AddressData extends Data
         public string $address,
         #[DataCollectionOf(DiligenceData::class)]
         public ?DataCollection $diligences,
+        #[DataCollectionOf(NotifiedPersonData::class)]
+        public ?DataCollection $notifiedPeople,
     ) {}
 }

@@ -3,6 +3,7 @@ export type AddressData = {
 id: number;
 address: string;
 diligences: any | null;
+notifiedPeople: any | null;
 };
 export type DiligenceData = {
 id: number;
@@ -24,7 +25,7 @@ export type NotificationData = {
 id: number;
 protocol: string;
 nature: App.Enums.NotificationNature;
-notified_people: any | null;
+notifiedPeople: any | null;
 addresses: any | null;
 };
 export type UserData = {

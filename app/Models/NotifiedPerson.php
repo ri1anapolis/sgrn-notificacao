@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class NotifiedPerson extends Model
 {
@@ -16,8 +15,8 @@ class NotifiedPerson extends Model
         return $this->belongsTo(Notification::class);
     }
 
-    public function addresses(): HasMany
+    public function addresses()
     {
-        return $this->hasMany(Address::class);
+        return $this->belongsToMany(Address::class, 'address_notified_person');
     }
 }

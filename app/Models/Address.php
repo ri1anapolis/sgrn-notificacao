@@ -20,4 +20,9 @@ class Address extends Model
     {
         return $this->hasMany(Diligence::class);
     }
+
+    public function notifiedPeople()
+    {
+        return $this->belongsToMany(NotifiedPerson::class, 'address_notified_person');
+    }
 }

@@ -16,7 +16,7 @@ class NotificationData extends Data
         public string $protocol,
         public NotificationNature $nature,
         #[DataCollectionOf(NotifiedPersonData::class)]
-        public ?DataCollection $notified_people,
+        public ?DataCollection $notifiedPeople,
         #[DataCollectionOf(AddressData::class)]
         public ?DataCollection $addresses,
     ) {}

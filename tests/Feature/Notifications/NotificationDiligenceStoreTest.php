@@ -29,7 +29,7 @@ it('should store a new diligence', function () {
         'visit_number' => 1,
         'diligence_result_id' => $this->diligenceResults->first()->id,
         'observations' => 'Nenhuma observação.',
-        'date' => Carbon::now()->format('Y-m-d H:i:s'),
+        'date' => Carbon::now()->format('Y-m-d'),
     ];
 
     $response = post(route('notifications.diligence.store', [
@@ -73,5 +73,4 @@ it('should fail validation if date is missing or has an invalid format', functio
         ->assertSessionHasErrors('date');
 })->with([
     'null' => null,
-    'invalid format' => '2025-12-31',
 ]);

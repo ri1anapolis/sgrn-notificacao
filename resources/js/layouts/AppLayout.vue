@@ -20,12 +20,14 @@ const props = defineProps({
     method: {
         type: String,
         required: false,
-    }
+    },
+
+    hasParameter: { type: Boolean, required: false, default: false },
 })
 </script>
 
 <template>
-    <AppLayout :text-button="props.textButton" :page-title="props.pageTitle" :link-button="props.linkButton" :method="props.method">
+    <AppLayout :text-button="props.textButton" :page-title="props.pageTitle" :has-parameter="props.hasParameter" :link-button="props.linkButton" :method="props.method">
         <slot />
     </AppLayout>
 </template>

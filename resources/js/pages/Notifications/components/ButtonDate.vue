@@ -11,19 +11,14 @@ let hourComplete = ref<string | null>(null);
 function registryDate() {
     const now = new Date();
 
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
+    dateComplete.value = now.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+    });
+    hourComplete.value = now.toLocaleTimeString('pt-BR');
 
-    const hour = String(now.getHours()).padStart(2, '0');
-    const minute = String(now.getMinutes()).padStart(2, '0');
-    const second = String(now.getSeconds()).padStart(2, '0');
-
-    dateComplete.value = `${day}/${month}/${year}`;
-    hourComplete.value = `${hour}:${minute}:${second}`;
-
-    const dateTimeForBackend = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
-    emit('dateRegistered', dateTimeForBackend);
+    emit('dateRegistered', now.toISOString());
 }
 </script>
 
@@ -31,7 +26,7 @@ function registryDate() {
     <div class="flex w-full flex-col md:w-80">
         <button
             type="button"
-            class="bg-[#b3925c] mb-3 inline-flex items-center cursor-pointer justify-center gap-x-2 rounded-lg p-4 text-base font-medium text-black md:gap-x-3"
+            class="mb-3 inline-flex cursor-pointer items-center justify-center gap-x-2 rounded-lg bg-[#b3925c] p-4 text-base font-medium text-black md:gap-x-3"
             @click="registryDate()"
         >
             <svg

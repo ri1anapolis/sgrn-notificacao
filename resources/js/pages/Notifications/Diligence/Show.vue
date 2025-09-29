@@ -6,9 +6,9 @@ import AddressDiligence from '@/pages/Notifications/components//AddressDiligence
 import ButtonDate from '@/pages/Notifications/components//ButtonDate.vue';
 import TabNavigation from '@/pages/Notifications/components//TabNavigation.vue';
 import { Head, router, useForm } from '@inertiajs/vue3';
-import { ref, computed, watch } from 'vue';
-import ButtonSaveDiligence from '../components/ButtonSaveDiligence.vue';
+import { computed, ref, watch } from 'vue';
 import { useToast } from 'vue-toastification';
+import ButtonSaveDiligence from '../components/ButtonSaveDiligence.vue';
 
 const props = defineProps<{
     notification: App.Data.NotificationData;
@@ -23,7 +23,6 @@ const diligenceCount = computed(() => props.address.diligences.length);
 const initialTabIndex = Math.min(diligenceCount.value, tabs.value.length - 1);
 const activeTab = ref(tabs.value[initialTabIndex]);
 
-
 const form = useForm({
     visit_number: 1,
     diligence_result_id: null as number | null,
@@ -33,17 +32,19 @@ const form = useForm({
 
 const isFormComplete = computed<boolean>(() => {
     return form.diligence_result_id !== null && form.date !== null;
-}
-)
+});
 
 const groupedDiligenceResults = computed(() => {
-    return props.diligenceResults.reduce((acc, result) => {
-        if (!acc[result.group]) {
-            acc[result.group] = [];
-        }
-        acc[result.group].push(result);
-        return acc;
-    }, {} as Record<string, App.Data.DiligenceResultData[]>);
+    return props.diligenceResults.reduce(
+        (acc, result) => {
+            if (!acc[result.group]) {
+                acc[result.group] = [];
+            }
+            acc[result.group].push(result);
+            return acc;
+        },
+        {} as Record<string, App.Data.DiligenceResultData[]>,
+    );
 });
 
 const diligenceForActiveTab = computed(() => {
@@ -65,9 +66,13 @@ const updateTab = (tab: string) => {
     activeTab.value = tab;
 };
 
-watch(activeTab, (newTab) => {
-    form.visit_number = parseInt(newTab.replace('Visita ', ''), 10);
-}, { immediate: true });
+watch(
+    activeTab,
+    (newTab) => {
+        form.visit_number = parseInt(newTab.replace('Visita ', ''), 10);
+    },
+    { immediate: true },
+);
 
 const handleDateRegistration = (dateTime: string) => {
     form.date = dateTime;
@@ -75,26 +80,34 @@ const handleDateRegistration = (dateTime: string) => {
 const toast = useToast();
 const saveDiligence = () => {
     if (isReadOnly.value) return;
-    form.post(route('notifications.diligence.store', {
-        notification: props.notification.protocol,
-        address: props.address.id,
-    }), {
-        preserveScroll: true,
-        onSuccess: () => {
-            form.reset('diligence_result_id', 'observations', 'date');
-            toast.success('Notificação registrada com sucesso!');
-            setTimeout(() => {
-                router.visit(route('dashboard'));
-            }, 1500)
-        }
-    });
+    form.post(
+        route('notifications.diligence.store', {
+            notification: props.notification.protocol,
+            address: props.address.id,
+        }),
+        {
+            preserveScroll: true,
+            onSuccess: () => {
+                form.reset('diligence_result_id', 'observations', 'date');
+                toast.success('Notificação registrada com sucesso!');
+                setTimeout(() => {
+                    router.visit(route('dashboard'));
+                }, 1500);
+            },
+        },
+    );
 };
 </script>
 
 <template>
-
     <Head title="Fase Notificação - Diligência" />
-    <AppLayout link-button="dashboard" text-button="Voltar" page-title="Fase de Notificação" method="get">
+    <AppLayout
+        :link-button="route('notifications.show', notification.protocol)"
+        :has-parameter="true"
+        text-button="Voltar"
+        page-title="Fase de Notificação"
+        method="get"
+    >
         <NotificationStageHeader :notification="notification" :address="address" class="md:-mt-14" />
 
         <div class="mb-6">
@@ -102,12 +115,13 @@ const saveDiligence = () => {
         </div>
 
         <div class="mt-9 mb-3">
-            <TabNavigation :tabs="tabs" :diligences-count="diligenceCount" :active-tab="activeTab"
-                @tab-change="updateTab" />
+            <TabNavigation :tabs="tabs" :diligences-count="diligenceCount" :active-tab="activeTab" @tab-change="updateTab" />
         </div>
 
-        <form @submit.prevent="saveDiligence"
-            class="mx-auto w-11/12 md:w-4xl mb-10 h-auto rounded-lg border-2 border-gray-700 bg-[#0e1423] p-10 text-white">
+        <form
+            @submit.prevent="saveDiligence"
+            class="mx-auto mb-10 h-auto w-11/12 rounded-lg border-2 border-gray-700 bg-[#0e1423] p-10 text-white md:w-4xl"
+        >
             <h2 class="mb-8 text-lg">Notificação - {{ activeTab }}</h2>
 
             <div v-if="isReadOnly && diligenceForActiveTab" class="mb-10 flex flex-col gap-6">
@@ -120,8 +134,7 @@ const saveDiligence = () => {
 
                 <div>
                     <label class="font-bold text-gray-300">Campo de Observação:</label>
-                    <p
-                        class="mt-2 w-full resize-none overflow-hidden rounded-lg border-2 border-[#3d4852] bg-[#1a1a1a] p-3 text-white">
+                    <p class="mt-2 w-full resize-none overflow-hidden rounded-lg border-2 border-[#3d4852] bg-[#1a1a1a] p-3 text-white">
                         {{ diligenceForActiveTab.observations || 'Nenhuma observação.' }}
                     </p>
                 </div>
@@ -137,19 +150,22 @@ const saveDiligence = () => {
                 <ButtonDate @date-registered="handleDateRegistration" />
                 <div class="mt-4 flex flex-col md:mt-0 md:flex-1">
                     <label for="observation" class="mb-3 font-bold text-gray-300">Campo de Observação</label>
-                    <textarea id="observation" v-model="form.observations"
-                        placeholder="Digite aqui os detalhes da sua diligência" rows="4"
-                        class="focus:ring-bege-claro focus:border-bege-claro w-full resize-none overflow-hidden p-3 rounded-lg border-2 border-[#3d4852] bg-[#1a1a1a] text-white placeholder-gray-500 transition">
-        </textarea>
+                    <textarea
+                        id="observation"
+                        v-model="form.observations"
+                        placeholder="Digite aqui os detalhes da sua diligência"
+                        rows="4"
+                        class="focus:ring-bege-claro focus:border-bege-claro w-full resize-none overflow-hidden rounded-lg border-2 border-[#3d4852] bg-[#1a1a1a] p-3 text-white placeholder-gray-500 transition"
+                    >
+                    </textarea>
                 </div>
             </div>
 
-
             <div v-if="isReadOnly" class="flex flex-col gap-y-4">
-                <h3 class="flex items-center font-semibold text-bege-claro">
-                    <span class="h-px flex-grow bg-bege-claro/50"></span>
-                    <span class="mx-4 text-yellow-600 text-lg">Resultado da Diligência</span>
-                    <span class="h-px flex-grow bg-bege-claro/50"></span>
+                <h3 class="text-bege-claro flex items-center font-semibold">
+                    <span class="bg-bege-claro/50 h-px flex-grow"></span>
+                    <span class="mx-4 text-lg text-yellow-600">Resultado da Diligência</span>
+                    <span class="bg-bege-claro/50 h-px flex-grow"></span>
                 </h3>
                 <p class="rounded-lg border-2 border-[#b3925c21] bg-[#0e1423] p-6 text-center text-white">
                     {{ selectedResultDescription }}
@@ -157,14 +173,24 @@ const saveDiligence = () => {
             </div>
 
             <div v-else class="flex flex-col items-center gap-y-8">
-                <RadioGroup v-for="(results, group) in groupedDiligenceResults" :key="group" :title="group"
-                    :options="results" v-model="form.diligence_result_id" name="diligence_result_id" />
+                <RadioGroup
+                    v-for="(results, group) in groupedDiligenceResults"
+                    :key="group"
+                    :title="group"
+                    :options="results"
+                    v-model="form.diligence_result_id"
+                    name="diligence_result_id"
+                />
             </div>
 
             <div v-if="!isReadOnly" class="mt-8">
                 <div class="flex w-full flex-col items-center">
-                    <ButtonSaveDiligence text="Salvar Dados da Visita" processing-text="Salvando..."
-                        :processing="form.processing" :disabled="!isFormComplete || form.processing" />
+                    <ButtonSaveDiligence
+                        text="Salvar Dados da Visita"
+                        processing-text="Salvando..."
+                        :processing="form.processing"
+                        :disabled="!isFormComplete || form.processing"
+                    />
                 </div>
             </div>
         </form>

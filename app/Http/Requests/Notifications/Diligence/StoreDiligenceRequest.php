@@ -25,7 +25,7 @@ class StoreDiligenceRequest extends FormRequest
             'visit_number' => ['required', 'integer', 'min:1', 'max:3'],
             'diligence_result_id' => ['required', 'integer'],
             'observations' => ['nullable', 'string', 'max:65535'],
-            'date' => ['required', 'date_format:Y-m-d H:i:s'],
+            'date' => ['required', 'date'],
         ];
     }
 }

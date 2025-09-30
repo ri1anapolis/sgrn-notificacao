@@ -2,23 +2,21 @@
 
 namespace App\Models;
 
-use App\Models\Traits\HashableModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class NotifiedPerson extends Model
 {
-    use HasFactory, HashableModel;
+    use HasFactory;
 
     public function notification(): BelongsTo
     {
         return $this->belongsTo(Notification::class);
     }
 
-    public function addresses(): HasMany
+    public function addresses()
     {
-        return $this->hasMany(Address::class);
+        return $this->belongsToMany(Address::class, 'address_notified_person');
     }
 }

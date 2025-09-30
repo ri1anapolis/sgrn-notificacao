@@ -18,13 +18,27 @@ const props = defineProps({
     deafult: 'get',
     validator: (value: string) => ['get', 'post'].includes(value),
   },
+
+  hasParameter: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
 });
 
-function methodChange() {
+function methodChange() { // TO DO: improve this later
   if (props.method === 'post') {
-    router.post(route(props.linkButton));
+    if (props.hasParameter) {
+      router.post(props.linkButton);
+    } else {
+      router.post(route(props.linkButton));
+    }
   } else {
-    router.get(route(props.linkButton));
+    if (props.hasParameter) {
+      router.get(props.linkButton);
+    } else {
+      router.get(route(props.linkButton));
+    }
   }
 }
 

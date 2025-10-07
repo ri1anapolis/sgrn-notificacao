@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified'])
     ->prefix('notifications/{notification}')
+    ->where(['notification' => '[0-9]+'])
     ->group(function () {
         Route::get('/', [NotificationController::class, 'show'])
             ->name('notifications.show');

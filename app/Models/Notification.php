@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-use App\Enums\NotificationNature;
 use App\Enums\NotificationStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Notification extends Model
 {
@@ -14,7 +14,6 @@ class Notification extends Model
 
     protected $casts = [
         'status' => NotificationStatus::class,
-        'nature' => NotificationNature::class,
     ];
 
     public function notifiedPeople(): HasMany
@@ -30,5 +29,10 @@ class Notification extends Model
     public function getRouteKeyName(): string
     {
         return 'protocol';
+    }
+
+    public function notifiable(): MorphTo
+    {
+        return $this->morphTo();
     }
 }

@@ -2,7 +2,7 @@
 import NotificationStageHeader from '@/components/NotificationStageHeader.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import AddressesCard from '@/pages/Notifications/components/AddressesCard.vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head } from '@inertiajs/vue3';
 
 defineProps<{
     notification: App.Data.NotificationData;

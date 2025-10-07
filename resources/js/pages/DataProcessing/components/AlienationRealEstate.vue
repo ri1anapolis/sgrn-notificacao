@@ -17,11 +17,7 @@ const form = useForm({
     defaultPeriod: '',
     gracePeriod: false,
     contractualClause: '',
-<<<<<<< HEAD
-    realEstateRegistryContract: '',
-=======
     realEstateRegistryLocation: '',
->>>>>>> d8c3acd (design of page  data processing added)
 });
 
 function submit() {
@@ -38,11 +34,8 @@ function submit() {
             placeholder="Digite o número da matrícula" />
         <InputForm id="guarantee-property-address" type="text" label="Identificação do Imóvel dado em Garantia"
             placeholder="Digite o endereço completo do imóvel" />
-<<<<<<< HEAD
         <InputForm id="contract-registration-act" type="number" label="Ato da matrícula com registro do contrato"
             placeholder="Ex: R-01" />
-=======
->>>>>>> d8c3acd (design of page  data processing added)
         <InputForm id="emoluments-intimation" type="text" label="Emolumentos para intimação"
             placeholder="Ex: R$ 150,00" />
         <InputForm id="contract-number" type="number" label="Número do contrato"
@@ -60,13 +53,10 @@ function submit() {
 
         <InputForm id="contractual-clause" type="text" label="Cláusula contratual de procuração mútua"
             placeholder="Digite a cláusula" />
-<<<<<<< HEAD
         <InputForm id="real-estate-registry-contract" type="text" label="Cartório onde o imóvel dado em garantia"
             placeholder="Digite o nome do cartório" />
-=======
         <InputForm id="real-estate-registry-location" type="text"
             label="Cartório onde o imóvel dado em garantia se encontra" placeholder="Digite o nome do cartório" />
->>>>>>> d8c3acd (design of page  data processing added)
         <ButtonSave />
     </form>
 </template>

@@ -21,15 +21,16 @@ const emit = defineEmits<{
 
 <template>
     <div
-        class="flex items-center bg-ice-snow border-2 border-bege-claro h-auto w-full max-w-4xl md:p-2 md:pb-4 p-1 pb-4 m-auto text-[#242424] rounded-lg justify-between gap-16">
-        <div class="text-xl flex flex-col md:flex-row ml-10 md:mt-5 font-bold">
-            <p class="pb-2">Protocolo: </p>
+        class="flex flex-col md:flex-row bg-[#f2f3f4] border-2 border-[#b3925c] h-auto w-11/12 md:w-4xl md:p-2 md:pb-4 p-5 m-auto text-[#242424] rounded-lg gap-4 md:items-center md:justify-between md:px-12">
+        <div class="text-xl flex md:mt-5 font-bold">
+            <p class="text-lg pb-2 font-bold">Protocolo: </p>
             <p class="ml-2">{{ formattedProtocol }}</p>
         </div>
 
-        <div class='flex flex-col mr-5 mt-3 md:flex-row'>
-            <p class=" text-lg pb-2 md:p-1 md:mt-1 md:mr-4 font-bold">Natureza: </p>
-            <NatureSelect :model-value="props.modelValue" @update:model-value="emit('update:modelValue', $event)" />
+        <div class='flex gap-4 md:mt-3'>
+            <p class="text-lg font-bold">Natureza: </p>
+            <NatureSelect class="-mt-2" :model-value="props.modelValue"
+                @update:model-value="emit('update:modelValue', $event)" />
         </div>
     </div>
 </template>

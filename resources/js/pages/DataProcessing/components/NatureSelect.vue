@@ -18,7 +18,7 @@ const emit = defineEmits<{
     <label for="natureza-select">
         <select name="menu" id="menu" :value="props.modelValue"
             @change="$emit('update:modelValue', ($event.target as HTMLSelectElement).value)"
-            class="rounded-md border border-[#ab9260] focus:ring-bege-claro focus:border-bege-claro bg-[#d7c59b]">
+            class="w-72 rounded-md border p-2 border-[#ab9260] focus:ring-bege-claro focus:border-bege-claro bg-[#d7c59b]">
             <option class="font-light" value="" disabled>Selecione uma natureza...</option>
             <option v-for="nature in natures" :key="nature.value" :value="nature.value">
                 {{ nature.text }}

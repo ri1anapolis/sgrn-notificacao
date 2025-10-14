@@ -24,7 +24,7 @@ const selectedNatureText = computed(() => natures.find((n) => n.value === props.
 </script>
 
 <template>
-    <div class="bg-ice-snow border-bege-claro rounded-lg border-2 p-5">
+    <div class="bg-[#f2f3f4] border-bege-claro rounded-lg border-2 p-5">
         <h2 class="mb-5 text-center text-xl font-bold text-[#242424]">Dados da Notificação</h2>
         <p class="mb-2 text-xl font-semibold text-[#242424]">Notificados:</p>
         <NotifiedPeopleForm class="mx-5 mb-5" />
@@ -36,7 +36,8 @@ const selectedNatureText = computed(() => natures.find((n) => n.value === props.
 
         <div class="mt-10 border-b border-[#4c484868]"></div>
         <div v-if="selectedNatureText">
-            <h2 class="mt-5 mb-5 text-center text-xl font-medium text-[#242424]">Dados Específicos da Notificação: {{ selectedNatureText }}</h2>
+            <h2 class="mt-5 mb-5 text-center text-xl font-medium text-[#242424]">Dados Específicos da Notificação: {{
+                selectedNatureText }}</h2>
             <AlienationRealEstate v-if="props.nature === 'alienacao_fiduciaria_imovel'" />
             <AlienationMovableProperty v-if="props.nature === 'alienacao_fiduciaria_movel'" />
             <PurchaseAndSaleSubdivision v-if="props.nature === 'compromisso_loteamento'" />

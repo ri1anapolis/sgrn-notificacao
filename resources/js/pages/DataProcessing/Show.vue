@@ -14,11 +14,12 @@ const selectedNature = ref('');
 </script>
 
 <template>
+
     <Head title="Tratamento de Dados" />
     <AppLayout link-button="dashboard" text-button="Voltar" page-title="Fase de Notificação" method="get">
         <DataProcessingHeader :notification="notification" class="md:-mt-14" v-model="selectedNature" />
 
-        <div class="m-auto mt-5 h-auto w-full max-w-4xl">
+        <div class="m-auto mt-5 h-auto w-11/12 md:w-4xl">
             <NotificationForm :nature="selectedNature" />
         </div>
     </AppLayout>

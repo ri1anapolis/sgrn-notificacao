@@ -18,7 +18,7 @@ const userRole = computed(() => page.props.auth.user?.role);
                 image-url="/images/Card-Tratamento-de-Dados.jpeg"
                 alt-name="Ilustração de um funcionário em uma mesa, digitando em um notebook para o tratamento de dados."
                 route-name="data-processing.show"
-                param-name="protocol"
+                param-name="notification"
             />
 
             <SearchProtocolCard

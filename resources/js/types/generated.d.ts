@@ -89,6 +89,14 @@ notifiable_type: string | null;
 notified_people: any | null;
 addresses: any | null;
 };
+export type NotifiedPersonData = {
+id: number;
+name: string;
+document: string;
+email: string | null;
+phone: string | null;
+gender: App.Enums.NotifiedPersonGender;
+};
 export type OtherData = {
 id: number;
 creditor: string;
@@ -158,5 +166,6 @@ declare namespace App.Enums {
 export type DiligenceResult = 'not_found';
 export type NotificationNature = 'Alienação Fiduciária de Bem Imóvel' | 'Alienação Fiduciária de Bem Móvel' | 'Compromisso de Compra e Venda Incorporação' | 'Compromisso de Compra e Venda Loteamento' | 'Retificação de Área' | 'Usucapião' | 'Adjudicação' | 'Diversos';
 export type NotificationStatus = 'completed' | 'in_progress';
+export type NotifiedPersonGender = 'masculine' | 'feminine';
 export type UserRole = 'admin' | 'employee';
 }

@@ -2,7 +2,7 @@
 
 namespace App\Data;
 
-use Carbon\Carbon;
+use DateTime;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
@@ -17,9 +17,9 @@ class AlienationMovablePropertyData extends Data
         public ?string $contract_registry_data,
         public ?string $emoluments_intimation,
         public ?string $contract_number,
-        public ?Carbon $contract_date,
+        public ?DateTime $contract_date,
         public ?int $total_amount_debt,
-        public ?Carbon $debt_position_date,
+        public ?DateTime $debt_position_date,
         public ?string $default_period,
         public bool $grace_period,
         public ?string $contractual_clause,

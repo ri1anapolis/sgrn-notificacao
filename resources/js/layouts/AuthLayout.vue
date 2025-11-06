@@ -2,7 +2,7 @@
 import AuthLayout from '@/layouts/auth/AuthSimpleLayout.vue';
 
 const props = defineProps({
-    title:{
+    title: {
         type: String,
         required: true,
     },
@@ -10,7 +10,7 @@ const props = defineProps({
 </script>
 
 <template>
-    <AuthLayout :title="props.title" >
+    <AuthLayout :title="props.title">
         <slot />
     </AuthLayout>
 </template>

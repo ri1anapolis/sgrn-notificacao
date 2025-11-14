@@ -3,7 +3,9 @@
 namespace App\Data;
 
 use DateTime;
+use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Data;
+use Spatie\LaravelData\DataCollection;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript]
@@ -18,5 +20,7 @@ class DiligenceData extends Data
         public ?DiligenceResultData $diligence_result,
         public ?int $user_id,
         public ?UserData $user,
+        #[DataCollectionOf(DiligenceHistoryData::class)]
+        public ?DataCollection $history,
     ) {}
 }

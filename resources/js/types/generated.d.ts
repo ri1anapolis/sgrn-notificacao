@@ -14,6 +14,19 @@ diligence_result_id: number | null;
 diligence_result: App.Data.DiligenceResultData | null;
 user_id: number | null;
 user: App.Data.UserData | null;
+history: any | null;
+};
+export type DiligenceHistoryData = {
+id: number;
+created_at: string;
+user_id: number | null;
+user: App.Data.UserData | null;
+old_diligence_result_id: number | null;
+oldResult: App.Data.DiligenceResultData | null;
+new_diligence_result_id: number | null;
+newResult: App.Data.DiligenceResultData | null;
+old_observations: string | null;
+new_observations: string | null;
 };
 export type DiligenceResultData = {
 id: number;

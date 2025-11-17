@@ -8,8 +8,10 @@ use App\Data\NotificationData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Notifications\Diligence\StoreDiligenceRequest;
 use App\Models\Address;
+use App\Models\Diligence;
 use App\Models\DiligenceResult;
 use App\Models\Notification;
+use App\Service\DiligenceHistoryService;
 use Inertia\Inertia;
 
 class NotificationDiligenceController extends Controller
@@ -17,8 +19,15 @@ class NotificationDiligenceController extends Controller
     public function show(Notification $notification, Address $address)
     {
         $address->load([
-            'diligences.diligenceResult',
-            'diligences.user',
+            'diligences' => function ($query) {
+                $query->with([
+                    'diligenceResult',
+                    'user',
+                    'history.user',
+                    'history.oldResult',
+                    'history.newResult',
+                ]);
+            },
             'notifiedPeople',
         ]);
 
@@ -44,6 +53,24 @@ class NotificationDiligenceController extends Controller
             'observations' => $validated['observations'],
             'date' => $validated['date'],
         ]);
+
+        return redirect()->route('notifications.diligence.show', [
+            'notification' => $notification,
+            'address' => $address,
+        ]);
+    }
+
+    public function update(
+        StoreDiligenceRequest $request,
+        Notification $notification,
+        Address $address,
+        Diligence $diligence,
+        DiligenceHistoryService $service
+    ) {
+
+        $service->updateDiligence($diligence, $request->validated());
+
+        $diligence->update($request->validated());
 
         return redirect()->route('notifications.diligence.show', [
             'notification' => $notification,

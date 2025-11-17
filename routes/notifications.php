@@ -15,4 +15,7 @@ Route::middleware(['auth', 'verified'])
 
         Route::post('/diligence/{address}', [NotificationDiligenceController::class, 'store'])
             ->name('notifications.diligence.store');
+
+        Route::put('/diligence/{address}/{diligence}', [NotificationDiligenceController::class, 'update'])
+            ->name('notifications.diligence.update');
     });

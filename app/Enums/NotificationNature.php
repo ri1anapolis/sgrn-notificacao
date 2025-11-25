@@ -2,6 +2,9 @@
 
 namespace App\Enums;
 
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
+
+#[TypeScript]
 enum NotificationNature: string
 {
     case realEstateFiduciaryAlienation = 'Alienação Fiduciária de Bem Imóvel';

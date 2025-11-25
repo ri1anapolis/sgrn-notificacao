@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import InputForm from '../../../components/InputForm.vue';
+import { vMaska } from "maska/vue";
+import { registrationMask } from '@/utils/masks';
+import { registryOptions } from '@/constants/natures';
 
 type AdversePossessionModel = App.Data.AdversePossessionData | null;
 
@@ -16,10 +19,33 @@ const emit = defineEmits<{
 const defaultData: App.Data.AdversePossessionData = {
     id: 0,
     office: null,
-    adverse_possession_property_registration: '',
-    adverse_possession_property_identification: '',
-    adverse_possession_property_registry_office: '',
+    adverse_possession_property_registration: null,
+    adverse_possession_property_identification: null,
+    adverse_possession_property_registry_office: null,
 };
+
+const selectedRegistry = computed({
+    get: () => {
+        const currentVal = internalData.value.adverse_possession_property_registry_office;
+
+        if (currentVal === null) return '';
+
+        if (registryOptions.includes(currentVal)) {
+            return currentVal;
+        }
+        return 'Outro';
+    },
+    set: (value) => {
+        if (value === 'Outro') {
+            const current = internalData.value.adverse_possession_property_registry_office;
+            if (!current || registryOptions.includes(current)) {
+                updateField('adverse_possession_property_registry_office', '');
+            }
+        } else {
+            updateField('adverse_possession_property_registry_office', value);
+        }
+    }
+});
 
 const internalData = computed({
     get: () => props.modelValue ?? defaultData,
@@ -34,62 +60,53 @@ const updateField = (fieldName: keyof App.Data.AdversePossessionData, value: str
     } as App.Data.AdversePossessionData;
 };
 
-const handleInput = (event: Event, fieldName: keyof App.Data.AdversePossessionData, type: 'text' | 'number') => {
-    const target = event.target as HTMLInputElement;
-    let value: string | number | null = target.value;
-
-    if (type === 'number') {
-        value = value === '' ? null : Number(value);
-    }
-
-    updateField(fieldName, value);
-};
 </script>
 
 <template>
     <div class="grid grid-cols-1 gap-5 p-6">
-        <InputForm
-            id="office"
-            type="number"
-            label="Nº de Ofício"
-            placeholder="Digite o número do ofício"
-            required
-            :model-value="internalData.office"
-            @input="(e: Event) => handleInput(e, 'office', 'number')"
-            :error="errors?.notifiable?.office"
-        />
 
-        <InputForm
-            id="adverse-possession-property-registration"
-            type="text"
-            label="Matrícula do Imóvel Usucapido"
-            placeholder="Digite a matrícula"
-            required
+        <InputForm id="office" type="text" label="Nº de Ofício" placeholder="Digite o número do ofício" required
+            v-maska="registrationMask" :model-value="internalData.office"
+            @update:model-value="updateField('office', $event)" :error="errors?.notifiable?.office" />
+
+        <InputForm id="adverse-possession-property-registration" type="text" label="Matrícula do Imóvel Usucapido"
+            placeholder="Digite a matrícula" required v-maska="registrationMask"
             :model-value="internalData.adverse_possession_property_registration"
             @update:model-value="updateField('adverse_possession_property_registration', $event)"
-            :error="errors?.notifiable?.adverse_possession_property_registration"
-        />
+            :error="errors?.notifiable?.adverse_possession_property_registration" />
 
-        <InputForm
-            id="adverse-possession-property-identification"
-            type="text"
-            label="Identificação do Imóvel que está sendo Usucapido"
-            placeholder="Digite o endereço completo do imóvel"
-            required
-            :model-value="internalData.adverse_possession_property_identification"
+        <InputForm id="adverse-possession-property-identification" type="text"
+            label="Identificação do Imóvel que está sendo Usucapido" placeholder="Digite o endereço completo do imóvel"
+            required :model-value="internalData.adverse_possession_property_identification"
             @update:model-value="updateField('adverse_possession_property_identification', $event)"
-            :error="errors?.notifiable?.adverse_possession_property_identification"
-        />
+            :error="errors?.notifiable?.adverse_possession_property_identification" />
 
-        <InputForm
-            id="adverse-possession-property-registry-office"
-            type="text"
-            label="Cartório onde o Imóvel Usucapido se Encontra"
-            placeholder="Digite o nome do cartório"
-            required
-            :model-value="internalData.adverse_possession_property_registry_office"
-            @update:model-value="updateField('adverse_possession_property_registry_office', $event)"
-            :error="errors?.notifiable?.adverse_possession_property_registry_office"
-        />
+        <div class="flex flex-col gap-2">
+            <label for="registry-select" class="block text-sm font-medium text-gray-700">
+                Cartório onde o Imóvel Usucapido se Encontra
+            </label>
+            <div class="relative">
+                <select id="registry-select" v-model="selectedRegistry"
+                    class="block w-full p-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                    <option value="" disabled>Selecione uma opção</option>
+                    <option v-for="option in registryOptions" :key="option" :value="option">
+                        {{ option }}
+                    </option>
+                    <option value="Outro">Outro (Digitar manualmente)</option>
+                </select>
+                <p v-if="selectedRegistry !== 'Outro' && errors?.notifiable?.adverse_possession_property_registry_office"
+                    class="mt-1 text-sm text-red-600">
+                    {{ errors.notifiable.adverse_possession_property_registry_office }}
+                </p>
+            </div>
+
+            <div v-if="selectedRegistry === 'Outro'" class="animate-fade-in-down">
+                <InputForm id="adverse-possession-property-registry-office" type="text"
+                    label="Digite o nome do cartório (Manual)" placeholder="Digite o nome do cartório..."
+                    :model-value="internalData.adverse_possession_property_registry_office"
+                    @update:model-value="updateField('adverse_possession_property_registry_office', $event)"
+                    :error="errors?.notifiable?.adverse_possession_property_registry_office" />
+            </div>
+        </div>
     </div>
 </template>

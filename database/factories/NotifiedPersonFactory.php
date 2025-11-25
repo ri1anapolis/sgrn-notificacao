@@ -16,6 +16,8 @@ class NotifiedPersonFactory extends Factory
             'notification_id' => Notification::factory(),
             'name' => $this->faker->name,
             'document' => $this->faker->numerify('###.###.###-##'),
+            'gender' => $this->faker->randomElement(['masculine', 'feminine']),
+            'phone' => $this->faker->phoneNumber(),
         ];
     }
 }

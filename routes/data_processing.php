@@ -3,10 +3,17 @@
 use App\Http\Controllers\DataProcessing\DataProcessingController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/data-processing/{notification}', [DataProcessingController::class, 'show'])
-    ->middleware(['auth', 'verified'])
-    ->name('data-processing.show');
+Route::middleware(['auth', 'verified'])->group(function () {
 
-Route::put('/data-processing/{notification}', [DataProcessingController::class, 'update'])
-    ->middleware(['auth', 'verified'])
-    ->name('data-processing.update');
+    Route::get('/data-processing/check/{protocol}', [DataProcessingController::class, 'check'])
+        ->name('data-processing.check');
+
+    Route::post('/data-processing', [DataProcessingController::class, 'store'])
+        ->name('data-processing.store');
+
+    Route::get('/data-processing/{notification}', [DataProcessingController::class, 'show'])
+        ->name('data-processing.show');
+
+    Route::put('/data-processing/{notification}', [DataProcessingController::class, 'update'])
+        ->name('data-processing.update');
+});

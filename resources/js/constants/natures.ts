@@ -13,3 +13,8 @@ export const natures: NatureOption[] = [
     { value: 'usucapiao', text: 'Usucapião' },
     { value: 'diversos', text: 'Diversos' },
 ]
+
+export const registryOptions = [
+    'Cartório de Registro de Imóveis da Primeira Circunscrição de Anápolis',
+    'Cartório de Registro de Imóveis da Segunda Circunscrição de Anápolis',
+];

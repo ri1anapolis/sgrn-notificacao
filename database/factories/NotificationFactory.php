@@ -30,7 +30,6 @@ class NotificationFactory extends Factory
             PurchaseAndSaleIncorporation::class,
             PurchaseAndSaleSubdivision::class,
             RetificationArea::class,
-            null,
         ];
 
         $notifiableType = $this->faker->randomElement($notifiableTypes);

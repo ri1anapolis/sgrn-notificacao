@@ -1,7 +1,8 @@
 <script setup lang="ts">
+
+import { useToast } from 'vue-toastification';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
-
 import { ref, watch } from 'vue';
 import DataProcessingHeader from './components/DataProcessingHeader.vue';
 import NotificationForm from './components/NotificationForm.vue';
@@ -10,28 +11,36 @@ const props = defineProps<{
     notification: App.Data.NotificationData;
 }>();
 
-const NATURE_TO_TYPE_MAP: { [key: string]: string } = {
-    alienacao_fiduciaria_imovel: 'App\\Models\\AlienationRealEstate',
-    alienacao_fiduciaria_movel: 'App\\Models\\AlienationMovableProperty',
-    compromisso_loteamento: 'App\\Models\\PurchaseAndSaleSubdivision',
-    compromisso_incorporacao: 'App\\Models\\PurchaseAndSaleIncorporation',
-    retificacao_area: 'App\\Models\\RetificationArea',
-    adjudicacao: 'App\\Models\\Adjudication',
-    usucapiao: 'App\\Models\\AdversePossession',
-    diversos: 'App\\Models\\Other',
-};
-
-const TYPE_TO_NATURE_MAP: { [key: string]: string } = Object.entries(NATURE_TO_TYPE_MAP).reduce(
-    (acc, [nature, type]) => {
-        acc[type] = nature;
-        return acc;
-    },
-    {} as { [key: string]: string },
-);
+import {
+    NATURE_TO_TYPE_MAP,
+    TYPE_TO_NATURE_MAP
+} from '@/utils/NotificationNatures';
 
 const getNatureFromType = (type: string | null | undefined): string | null => {
     if (!type) return null;
     return TYPE_TO_NATURE_MAP[type] ?? null;
+};
+
+const parseNumber = (value: unknown) => {
+    if (!value) return null;
+    return Number(String(value).replace(/\D/g, ''));
+};
+
+const parseCurrency = (value: unknown) => {
+    if (!value) return null;
+    if (typeof value === 'number') return value;
+    const clean = String(value).replace(/[^\d,]/g, '').replace(',', '.');
+    return Number(clean);
+};
+
+const parseDate = (value: unknown) => {
+    if (!value || typeof value !== 'string') return null;
+    if (value.includes('-')) return value;
+
+    const parts = value.split('/');
+    if (parts.length !== 3) return null;
+
+    return `${parts[2]}-${parts[1]}-${parts[0]}`;
 };
 
 const selectedNature = ref<string | null>(getNatureFromType(props.notification.notifiable_type));
@@ -48,6 +57,8 @@ watch(selectedNature, (newNature, oldNature) => {
     }
 });
 
+const toast = useToast();
+
 const submit = () => {
     const notifiableType = selectedNature.value ? NATURE_TO_TYPE_MAP[selectedNature.value] : null;
 
@@ -61,6 +72,11 @@ const submit = () => {
         notifiablePayload = {
             ...notifiablePayload,
             notifiable_type: notifiableType,
+            office: parseNumber(notifiablePayload.office),
+            emoluments_intimation: String(parseCurrency(notifiablePayload.emoluments_intimation)),
+            total_amount_debt: String(parseCurrency(notifiablePayload.total_amount_debt)),
+            contract_date: parseDate(notifiablePayload.contract_date),
+            debt_position_date: parseDate(notifiablePayload.debt_position_date),
         };
     } else {
         notifiablePayload = null;
@@ -87,31 +103,49 @@ const submit = () => {
 
     form.transform(() => finalPayload).put(route('data-processing.update', props.notification.protocol), {
         preserveScroll: true,
+
+        onSuccess: () => {
+            toast.success("Alterações Salvas Com Sucesso!");
+        },
+
+        onError: (errors) => {
+            console.log("ERROS DE VALIDAÇÃO:", errors);
+            let specificErrorShown = false;
+
+            const hasAddressError = Object.keys(errors).some(key => key.startsWith('addresses'));
+            if (hasAddressError) {
+                toast.error("Erro ao salvar. O campo de endereço não foi preenchido.");
+                specificErrorShown = true;
+            }
+
+            const hasPeopleError = Object.keys(errors).some(key => key.startsWith('notified_people'));
+            if (hasPeopleError) {
+                toast.error("Erro ao salvar. O campo do Notificado não foi preenchido.");
+                specificErrorShown = true;
+            }
+
+            if (!specificErrorShown) {
+                toast.error("Erro ao salvar. Verifique os campos.");
+            }
+        }
     });
 };
 </script>
 
 <template>
+
     <Head title="Tratamento de Dados" />
     <AppLayout link-button="dashboard" text-button="Voltar" page-title="Processamento de dados" method="get">
         <DataProcessingHeader :notification="notification" v-model:nature="selectedNature" class="md:-mt-14" />
 
         <div class="m-auto mt-5 h-auto w-11/12 md:w-4xl">
-            <NotificationForm
-                v-model:notified-people="form.notified_people"
-                v-model:addresses="form.addresses"
-                v-model:nature="selectedNature"
-                v-model:notifiable="form.notifiable"
-                :errors="form.errors"
-            />
+            <NotificationForm v-model:notified-people="form.notified_people" v-model:addresses="form.addresses"
+                v-model:nature="selectedNature" v-model:notifiable="form.notifiable" :errors="form.errors" />
         </div>
 
         <div class="m-auto mt-8 flex w-11/12 justify-end md:w-4xl">
-            <button
-                @click.prevent="submit"
-                :disabled="form.processing"
-                class="rounded-md bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-50"
-            >
+            <button @click.prevent="submit" :disabled="form.processing"
+                class="rounded-md bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer">
                 {{ form.processing ? 'Salvando...' : 'Salvar Alterações' }}
             </button>
         </div>

@@ -2,7 +2,6 @@
 
 namespace App\Data;
 
-use Carbon\Carbon;
 use DateTime;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;

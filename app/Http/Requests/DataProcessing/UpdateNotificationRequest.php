@@ -57,7 +57,7 @@ class UpdateNotificationRequest extends FormRequest
                 'notifiable.contract_date' => ['nullable', 'date'],
                 'notifiable.total_amount_debt' => ['nullable', 'numeric'],
                 'notifiable.debt_position_date' => ['nullable', 'date'],
-                'notifiable.default_period' => ['nullable', 'date'],
+                'notifiable.default_period' => ['nullable', 'string', 'max:255'],
                 'notifiable.grace_period' => ['required', 'boolean'],
                 'notifiable.contractual_clause' => ['nullable', 'string'],
                 'notifiable.real_estate_registry_location' => ['nullable', 'string', 'max:255'],

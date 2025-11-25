@@ -4,31 +4,36 @@ namespace App\Http\Controllers\DataProcessing;
 
 use App\Data\NotificationData;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\DataProcessing\ShowDataProcessingRequest;
+use App\Http\Requests\DataProcessing\StoreProtocolRequest;
 use App\Http\Requests\DataProcessing\UpdateNotificationRequest;
 use App\Models\Notification;
 use App\Services\DataProcessingService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Throwable;
 
 class DataProcessingController extends Controller
 {
-    public function show(ShowDataProcessingRequest $request)
+    public function check(string $protocol): JsonResponse
     {
-        $protocol = $request->validated('protocol');
+        $exists = Notification::where('protocol', $protocol)->exists();
 
-        $notification = Notification::firstOrNew(['protocol' => $protocol]);
+        return response()->json(['exists' => $exists]);
+    }
 
-        if (! $notification->exists) {
-            $notification->protocol = $protocol;
-            $notification->save();
-        }
+    public function store(StoreProtocolRequest $request)
+    {
+        $notification = Notification::firstOrCreate($request->validated());
 
-        $notificationData = NotificationData::from($notification);
+        return to_route('data-processing.show', $notification)
+            ->with('success', 'Protocolo criado com sucesso!');
+    }
 
+    public function show(Notification $notification)
+    {
         return Inertia::render('DataProcessing/Show', [
-            'notification' => $notificationData,
+            'notification' => NotificationData::from($notification),
         ]);
     }
 
@@ -39,7 +44,7 @@ class DataProcessingController extends Controller
     ) {
         try {
             DB::transaction(
-                fn() => $dataProcessingService->syncNotificationData(
+                fn () => $dataProcessingService->syncNotificationData(
                     $notification,
                     $request->validated()
                 )

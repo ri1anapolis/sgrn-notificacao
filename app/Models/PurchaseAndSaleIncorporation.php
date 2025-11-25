@@ -16,7 +16,6 @@ class PurchaseAndSaleIncorporation extends Model
         'grace_period' => 'boolean',
     ];
 
-
     public function notification(): MorphOne
     {
         return $this->morphOne(Notification::class, 'notifiable');

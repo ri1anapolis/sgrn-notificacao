@@ -9,24 +9,19 @@ const userRole = computed(() => page.props.auth.user?.role);
 </script>
 
 <template>
+
     <Head title="Dashboard" />
 
-    <AppLayout link-button="logout" text-button="Sair" page-title="Notificação Certa - Sistema Extrajudicial" method="post">
+    <AppLayout link-button="logout" text-button="Sair" page-title="Notificação Certa - Sistema Extrajudicial"
+        method="post">
         <div class="m-auto mb-5 flex max-w-7xl flex-wrap justify-center gap-12">
-            <SearchProtocolCard
-                v-if="userRole == 'admin'"
-                image-url="/images/Card-Tratamento-de-Dados.jpeg"
+            <SearchProtocolCard v-if="userRole == 'admin'" image-url="/images/Card-Tratamento-de-Dados.jpeg"
                 alt-name="Ilustração de um funcionário em uma mesa, digitando em um notebook para o tratamento de dados."
-                route-name="data-processing.show"
-                param-name="notification"
-            />
+                route-name="data-processing.show" param-name="notification" :can-create="true" />
 
-            <SearchProtocolCard
-                image-url="/images/Card-Fase-de-Notificação.png"
+            <SearchProtocolCard image-url="/images/Card-Fase-de-Notificação.png"
                 alt-name="Ilustração de um notificador ao lado de sua motocicleta, segurando uma prancheta para a fase de notificação."
-                route-name="notifications.show"
-                param-name="notification"
-            />
+                route-name="notifications.show" param-name="notification" :can-create="false" />
 
             <!--<SearchProtocolCard v-if="userRole == 'admin'"
             image-url="/images/Card-Cartorio-Consulta.png"

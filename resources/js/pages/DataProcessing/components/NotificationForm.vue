@@ -105,10 +105,8 @@ onMounted(() => {
         <p class="mb-2 text-xl font-semibold text-[#242424]">Notificados:</p>
         <div v-for="(person, index) in people" :key="`person-${index}`" class="relative mx-5 mb-5">
             <NotifiedPeopleForm v-model="people[index]" :index="index" />
-            <button
-                @click.prevent="removeNotifiedPerson(index)"
-                class="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 font-bold text-white"
-            >
+            <button v-if="(people.length > 1)" @click.prevent="removeNotifiedPerson(index)"
+                class="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 font-bold text-white transition-all duration-300 hover:scale-120 hover:bg-red-600 cursor-pointer">
                 X
             </button>
         </div>
@@ -117,10 +115,8 @@ onMounted(() => {
         <p class="mb-2 text-xl font-semibold text-[#242424]">Endereços:</p>
         <div v-for="(address, index) in addrs" :key="`address-${index}`" class="relative mx-5 mb-5">
             <AddressForm v-model="addrs[index]" :index="index" />
-            <button
-                @click.prevent="removeAddress(index)"
-                class="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 font-bold text-white"
-            >
+            <button v-if="(addrs.length > 1)" @click.prevent="removeAddress(index)"
+                class="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 font-bold text-white transition-all duration-300 hover:scale-120 hover:bg-red-600 cursor-pointer">
                 X
             </button>
         </div>
@@ -129,11 +125,16 @@ onMounted(() => {
         <div class="mt-10 border-b border-[#4c484868]"></div>
 
         <div v-if="selectedNatureText">
-            <h2 class="mt-5 mb-5 text-center text-xl font-medium text-[#242424]">Dados Específicos da Notificação: {{ selectedNatureText }}</h2>
-            <AlienationRealEstateForm v-if="nature === 'alienacao_fiduciaria_imovel'" v-model="notifiableData" :errors="errors" />
-            <AlienationMovablePropertyForm v-if="nature === 'alienacao_fiduciaria_movel'" v-model="notifiableData" :errors="errors" />
-            <PurchaseAndSaleSubdivisionForm v-if="nature === 'compromisso_loteamento'" v-model="notifiableData" :errors="errors" />
-            <PurchaseAndSaleIncorporationForm v-if="nature === 'compromisso_incorporacao'" v-model="notifiableData" :errors="errors" />
+            <h2 class="mt-5 mb-5 text-center text-xl font-medium text-[#242424]">Dados Específicos da Notificação: {{
+                selectedNatureText }}</h2>
+            <AlienationRealEstateForm v-if="nature === 'alienacao_fiduciaria_imovel'" v-model="notifiableData"
+                :errors="errors" />
+            <AlienationMovablePropertyForm v-if="nature === 'alienacao_fiduciaria_movel'" v-model="notifiableData"
+                :errors="errors" />
+            <PurchaseAndSaleSubdivisionForm v-if="nature === 'compromisso_loteamento'" v-model="notifiableData"
+                :errors="errors" />
+            <PurchaseAndSaleIncorporationForm v-if="nature === 'compromisso_incorporacao'" v-model="notifiableData"
+                :errors="errors" />
             <RetificationAreaForm v-if="nature === 'retificacao_area'" v-model="notifiableData" :errors="errors" />
             <AdjudicationForm v-if="nature === 'adjudicacao'" v-model="notifiableData" :errors="errors" />
             <AdversePossessionForm v-if="nature === 'usucapiao'" v-model="notifiableData" :errors="errors" />

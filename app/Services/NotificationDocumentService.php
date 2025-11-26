@@ -1,0 +1,180 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\Notification;
+use Carbon\Carbon;
+use PhpOffice\PhpWord\TemplateProcessor;
+use Exception;
+
+class NotificationDocumentService
+{
+    public function generateNotificationDoc(Notification $notification): string
+    {
+        $notification->load(['notifiable', 'notifiedPeople', 'addresses']);
+
+        $templatePath = storage_path('app/templates/alienation_notification.docx');
+        if (!file_exists($templatePath)) {
+            throw new Exception("Modelo de documento não encontrado: {$templatePath}");
+        }
+
+        $template = new TemplateProcessor($templatePath);
+
+        $this->fillBasicData($template, $notification);
+        $this->fillPersonData($template, $notification);
+        $this->fillSpecificData($template, $notification);
+
+        $tempFile = tempnam(sys_get_temp_dir(), 'notificacao_n_');
+        $template->saveAs($tempFile);
+
+        return $tempFile;
+    }
+
+    private function fillBasicData(TemplateProcessor $template, Notification $notification): void
+    {
+        $protocolValue = $notification->protocol;
+        if (is_numeric($protocolValue)) {
+            $protocolValue = number_format($protocolValue, 0, ',', '.');
+        }
+
+        $template->setValue('protocol', $protocolValue);
+        $now = Carbon::now();
+        $dateString = $now->day . ' de ' . $now->translatedFormat('F') . ' de ' . $now->year . '.';
+        $template->setValue('date', $dateString);
+
+        $peopleCount = $notification->notifiedPeople->count();
+
+        $hasMale = $notification->notifiedPeople->contains(function ($person) {
+            $rawGender = $person->gender instanceof \BackedEnum ? $person->gender->value : $person->gender;
+
+            $g = strtolower(trim((string) $rawGender));
+
+            return in_array($g, ['masculine', 'male', 'm', 'masculino']);
+        });
+
+        if ($peopleCount > 1) {
+            $greeting = $hasMale ? 'Prezados Senhores,' : 'Prezadas Senhoras,';
+            $vocative = $hasMale ? 'Senhores,' : 'Senhoras,';
+            $verb = 'intimar-lhes';
+            $pronoun = 'Vossas Senhorias';
+        } else {
+            $person = $notification->notifiedPeople->first();
+
+            $rawGender = null;
+            if ($person && $person->gender) {
+                $rawGender = $person->gender instanceof \BackedEnum ? $person->gender->value : $person->gender;
+            }
+
+            $gender = strtolower(trim((string) $rawGender));
+            $isMale = in_array($gender, ['masculine', 'male', 'm', 'masculino']);
+
+            $greeting = $isMale ? 'Prezado Senhor,' : 'Prezada Senhora,';
+            $vocative = $isMale ? 'Senhor,' : 'Senhora,';
+            $verb = $isMale ? 'intimá-lo' : 'intimá-la';
+            $pronoun = 'Vossa Senhoria';
+        }
+
+        $template->setValue('greeting', $greeting);
+        $template->setValue('vocative', $vocative);
+        $template->setValue('texto_intimar_verb', $verb);
+        $template->setValue('termo_vossas_senhorias', $pronoun);
+    }
+
+
+    private function fillPersonData(TemplateProcessor $template, Notification $notification): void
+    {
+        $people = $notification->notifiedPeople;
+        $count = $people->count();
+
+        $template->cloneBlock('BLOCO_PESSOAS', $count, true, true);
+
+        foreach ($people as $index => $person) {
+
+            $line = mb_strtoupper($person->name) . ", CPF nº " . $person->document;
+
+            $template->setValue('linha_qualificacao#' . ($index + 1), $line);
+        }
+
+        $firstPerson = $people->first();
+        $address = $notification->addresses->first();
+        $template->setValue('nome_devedor', $firstPerson->name ?? '');
+        $template->setValue('documento_devedor', $firstPerson->document ?? '');
+        $template->setValue('endereco_devedor', $address->address ?? '');
+    }
+
+    private function fillSpecificData(TemplateProcessor $template, Notification $notification): void
+    {
+        $data = $notification->notifiable;
+
+        $natureMap = [
+            'alienacao_fiduciaria_imovel' => 'Alienação Fiduciária de Bem Imóvel',
+        ];
+        $natureLabel = $natureMap[$notification->notifiable_type] ?? 'Alienação Fiduciária';
+        $template->setValue('nature', $natureLabel);
+
+        if (!$data) {
+            $fields = ['credor', 'cnpj_number', 'office', 'contract_number', 'contract_date', 'total_amount_debt', 'emoluments_intimation', 'guarantee_property_registration', 'guarantee_property_address', 'contract_registration_act', 'default_period', 'debt_position_date'];
+            foreach ($fields as $field) $template->setValue($field, '');
+            return;
+        }
+
+        $rawCreditor = $data->creditor ?? '';
+        $creditorName = $rawCreditor;
+        $cnpjNumber = '';
+
+        $parts = preg_split('/[,.-]?\s*CNPJ[:.\s]*/i', $rawCreditor);
+
+        if (count($parts) > 1) {
+            $creditorName = trim($parts[0]);
+            $cnpjNumber = trim($parts[1]);
+        }
+
+        $template->setValue('creditor', mb_strtoupper($creditorName));
+        $template->setValue('cnpj_number', $cnpjNumber);
+
+        $officeValue = $data->office ?? null;
+        $officeFormatted = '____';
+        if ($officeValue) {
+            if (is_numeric($officeValue)) {
+                $officeFormatted = number_format((float)$officeValue, 0, ',', '.');
+                } else {
+                    $officeFormatted = $officeValue;
+            }
+        }
+
+        $template->setValue('office', $officeFormatted);
+
+
+        $template->setValue('contract_number', $data->contract_number ?? '');
+        $template->setValue('act', $data->contract_registration_act ?? '');
+        $template->setValue('registration_number', $data->guarantee_property_registration ?? '');
+        $template->setValue('full_address', $data->guarantee_property_address ?? '');
+
+        $template->setValue('default_period', $data->default_period ?? '');
+
+        $this->formatDate($template, 'contract_date', $data->contract_date);
+        $this->formatDate($template, 'debt_position_date', $data->debt_position_date);
+
+        $this->formatCurrency($template, 'total_amount_debt', $data->total_amount_debt);
+        $this->formatCurrency($template, 'emoluments_intimation', $data->emoluments_intimation);
+    }
+
+
+    private function formatDate(TemplateProcessor $t, string $key, ?string $date): void
+    {
+        if (!$date) {
+            $t->setValue($key, '___/___/___');
+            return;
+        }
+        $d = Carbon::parse($date);
+        $t->setValue($key, $d->day . ' de ' . $d->translatedFormat('F') . ' de ' . $d->year);
+    }
+
+    private function formatCurrency(TemplateProcessor $t, string $key, $value): void
+    {
+        $val = (float) ($value ?? 0);
+        $formatted = number_format($val, 2, ',', '.');
+
+        $t->setValue($key, $formatted);
+    }
+}

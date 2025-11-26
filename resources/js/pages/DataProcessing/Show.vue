@@ -130,6 +130,17 @@ const submit = () => {
         }
     });
 };
+
+const downloadDocument = () => {
+    if (form.isDirty) {
+        alert('Salve as alterações antes de gerar o documento!');
+        return;
+    }
+
+    const url = route('data-processing.download', props.notification.protocol);
+    window.open(url, '_self');
+};
+
 </script>
 
 <template>
@@ -143,10 +154,15 @@ const submit = () => {
                 v-model:nature="selectedNature" v-model:notifiable="form.notifiable" :errors="form.errors" />
         </div>
 
-        <div class="m-auto mt-8 flex w-11/12 justify-end md:w-4xl">
+        <div class="m-auto mt-8 flex w-11/12 justify-end md:w-4xl gap-6">
             <button @click.prevent="submit" :disabled="form.processing"
-                class="rounded-md bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer">
+                class="rounded-md bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-400 hover:scale-105 duration-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer">
                 {{ form.processing ? 'Salvando...' : 'Salvar Alterações' }}
+            </button>
+
+            <button @click="downloadDocument"
+                class="rounded-md bg-amber-400 hover:bg-amber-600 px-6 py-2.5 text-sm font-semibold text-zinc-900 shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer hover:scale-105 duration-100">
+                Baixar Notificação
             </button>
         </div>
     </AppLayout>

@@ -23,6 +23,8 @@ class NotificationDocumentService
         $this->fillBasicData($template, $notification);
         $this->fillPersonData($template, $notification);
         $this->fillSpecificData($template, $notification);
+        $this->fillGuestList($template, $notification);
+        $this->fillEditalData($template, $notification);
 
         $tempFile = tempnam(sys_get_temp_dir(), 'notificacao_n_');
         $template->saveAs($tempFile);
@@ -33,11 +35,13 @@ class NotificationDocumentService
     private function fillBasicData(TemplateProcessor $template, Notification $notification): void
     {
         $protocolValue = $notification->protocol;
+
         if (is_numeric($protocolValue)) {
-            $protocolValue = number_format($protocolValue, 0, ',', '.');
+            $protocolValue = number_format((float) $protocolValue, 0, ',', '.');
         }
 
         $template->setValue('protocol', $protocolValue);
+
         $now = Carbon::now();
         $dateString = $now->day . ' de ' . $now->translatedFormat('F') . ' de ' . $now->year . '.';
         $template->setValue('date', $dateString);
@@ -46,9 +50,7 @@ class NotificationDocumentService
 
         $hasMale = $notification->notifiedPeople->contains(function ($person) {
             $rawGender = $person->gender instanceof \BackedEnum ? $person->gender->value : $person->gender;
-
             $g = strtolower(trim((string) $rawGender));
-
             return in_array($g, ['masculine', 'male', 'm', 'masculino']);
         });
 
@@ -59,7 +61,6 @@ class NotificationDocumentService
             $pronoun = 'Vossas Senhorias';
         } else {
             $person = $notification->notifiedPeople->first();
-
             $rawGender = null;
             if ($person && $person->gender) {
                 $rawGender = $person->gender instanceof \BackedEnum ? $person->gender->value : $person->gender;
@@ -67,7 +68,6 @@ class NotificationDocumentService
 
             $gender = strtolower(trim((string) $rawGender));
             $isMale = in_array($gender, ['masculine', 'male', 'm', 'masculino']);
-
             $greeting = $isMale ? 'Prezado Senhor,' : 'Prezada Senhora,';
             $vocative = $isMale ? 'Senhor,' : 'Senhora,';
             $verb = $isMale ? 'intimá-lo' : 'intimá-la';
@@ -80,19 +80,16 @@ class NotificationDocumentService
         $template->setValue('termo_vossas_senhorias', $pronoun);
     }
 
-
     private function fillPersonData(TemplateProcessor $template, Notification $notification): void
     {
         $people = $notification->notifiedPeople;
         $count = $people->count();
 
-        $template->cloneBlock('BLOCO_PESSOAS', $count, true, true);
+        $template->cloneBlock('BLOCK_PEOPLE', $count, true, true);
 
         foreach ($people as $index => $person) {
-
             $line = mb_strtoupper($person->name) . ", CPF nº " . $person->document;
-
-            $template->setValue('linha_qualificacao#' . ($index + 1), $line);
+            $template->setValue('line_qualification#' . ($index + 1), $line);
         }
 
         $firstPerson = $people->first();
@@ -118,7 +115,7 @@ class NotificationDocumentService
             return;
         }
 
-        $rawCreditor = $data->creditor ?? '';
+        $rawCreditor = $data->credor ?? $data->creditor ?? '';
         $creditorName = $rawCreditor;
         $cnpjNumber = '';
 
@@ -137,19 +134,16 @@ class NotificationDocumentService
         if ($officeValue) {
             if (is_numeric($officeValue)) {
                 $officeFormatted = number_format((float)$officeValue, 0, ',', '.');
-                } else {
-                    $officeFormatted = $officeValue;
+            } else {
+                $officeFormatted = $officeValue;
             }
         }
-
         $template->setValue('office', $officeFormatted);
-
 
         $template->setValue('contract_number', $data->contract_number ?? '');
         $template->setValue('act', $data->contract_registration_act ?? '');
         $template->setValue('registration_number', $data->guarantee_property_registration ?? '');
         $template->setValue('full_address', $data->guarantee_property_address ?? '');
-
         $template->setValue('default_period', $data->default_period ?? '');
 
         $this->formatDate($template, 'contract_date', $data->contract_date);
@@ -157,6 +151,33 @@ class NotificationDocumentService
 
         $this->formatCurrency($template, 'total_amount_debt', $data->total_amount_debt);
         $this->formatCurrency($template, 'emoluments_intimation', $data->emoluments_intimation);
+    }
+
+    private function fillGuestList(TemplateProcessor $template, Notification $notification): void
+    {
+        $people = $notification->notifiedPeople;
+        $count = $people->count();
+
+        $template->cloneBlock('BLOCK_GUESTS', $count, true, true);
+
+        foreach ($people as $index => $person) {
+            $i = $index + 1;
+            $template->setValue("name_guest#{$i}", mb_strtoupper($person->name));
+            $template->setValue("doc_guest#{$i}", $person->document);
+        }
+    }
+
+    private function fillEditalData(TemplateProcessor $template, Notification $notification): void
+    {
+        $people = $notification->notifiedPeople;
+
+        $textList = $people->map(function($person) {
+            $name = mb_strtoupper($person->name);
+            $doc = $person->document;
+            return "{$name}, inscrito no CPF nº {$doc}";
+        })->join(', ', ' e ');
+
+        $template->setValue('text_list_edital', $textList);
     }
 
 
@@ -174,7 +195,6 @@ class NotificationDocumentService
     {
         $val = (float) ($value ?? 0);
         $formatted = number_format($val, 2, ',', '.');
-
         $t->setValue($key, $formatted);
     }
 }

@@ -4,10 +4,10 @@ namespace App\Providers;
 
 use App\Models\Notification;
 use App\Policies\NotificationPolicy;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
-use Carbon\Carbon;
 
 class AppServiceProvider extends ServiceProvider
 {

@@ -4,8 +4,8 @@ namespace App\Services;
 
 use App\Models\Notification;
 use Carbon\Carbon;
-use PhpOffice\PhpWord\TemplateProcessor;
 use Exception;
+use PhpOffice\PhpWord\TemplateProcessor;
 
 class NotificationDocumentService
 {
@@ -14,7 +14,7 @@ class NotificationDocumentService
         $notification->load(['notifiable', 'notifiedPeople', 'addresses']);
 
         $templatePath = storage_path('app/templates/alienation_notification.docx');
-        if (!file_exists($templatePath)) {
+        if (! file_exists($templatePath)) {
             throw new Exception("Modelo de documento não encontrado: {$templatePath}");
         }
 
@@ -43,7 +43,7 @@ class NotificationDocumentService
         $template->setValue('protocol', $protocolValue);
 
         $now = Carbon::now();
-        $dateString = $now->day . ' de ' . $now->translatedFormat('F') . ' de ' . $now->year . '.';
+        $dateString = $now->day.' de '.$now->translatedFormat('F').' de '.$now->year.'.';
         $template->setValue('date', $dateString);
 
         $peopleCount = $notification->notifiedPeople->count();
@@ -51,16 +51,23 @@ class NotificationDocumentService
         $hasMale = $notification->notifiedPeople->contains(function ($person) {
             $rawGender = $person->gender instanceof \BackedEnum ? $person->gender->value : $person->gender;
             $g = strtolower(trim((string) $rawGender));
+
             return in_array($g, ['masculine', 'male', 'm', 'masculino']);
         });
 
         if ($peopleCount > 1) {
             $greeting = $hasMale ? 'Prezados Senhores,' : 'Prezadas Senhoras,';
             $vocative = $hasMale ? 'Senhores,' : 'Senhoras,';
-            $verb = 'intimar-lhes';
-            $pronoun = 'Vossas Senhorias';
+            $verbIntimate = 'intimar-lhes';
+            $verbComply = 'cumpram';
+            $pronounTreatment = 'Vossas Senhorias';
+            $verbProceed = 'efetuarem';
+            $verbNotifiedPassive = 'ficam Vossas Senhorias cientificadas';
+            $editalVocative = $hasMale ? 'os senhores' : 'as senhoras';
+            $verbGo = 'se dirijam';
         } else {
             $person = $notification->notifiedPeople->first();
+
             $rawGender = null;
             if ($person && $person->gender) {
                 $rawGender = $person->gender instanceof \BackedEnum ? $person->gender->value : $person->gender;
@@ -68,16 +75,30 @@ class NotificationDocumentService
 
             $gender = strtolower(trim((string) $rawGender));
             $isMale = in_array($gender, ['masculine', 'male', 'm', 'masculino']);
+
             $greeting = $isMale ? 'Prezado Senhor,' : 'Prezada Senhora,';
             $vocative = $isMale ? 'Senhor,' : 'Senhora,';
-            $verb = $isMale ? 'intimá-lo' : 'intimá-la';
-            $pronoun = 'Vossa Senhoria';
+            $verbIntimate = $isMale ? 'intimá-lo' : 'intimá-la';
+            $verbComply = 'cumpra';
+            $pronounTreatment = 'Vossa Senhoria';
+            $verbProceed = 'efetuar';
+            $termCientificado = $isMale ? 'cientificado' : 'cientificada';
+            $verbNotifiedPassive = "fica Vossa Senhoria {$termCientificado}";
+            $editalVocative = $isMale ? 'o senhor' : 'a senhora';
+            $verbGo = 'se dirija';
         }
 
         $template->setValue('greeting', $greeting);
         $template->setValue('vocative', $vocative);
-        $template->setValue('texto_intimar_verb', $verb);
-        $template->setValue('termo_vossas_senhorias', $pronoun);
+        $template->setValue('verb_intimate', $verbIntimate);
+        $template->setValue('texto_intimar_verb', $verbIntimate);
+        $template->setValue('verb_comply', $verbComply);
+        $template->setValue('pronoun_treatment', $pronounTreatment);
+        $template->setValue('termo_vossas_senhorias', $pronounTreatment);
+        $template->setValue('verb_proceed', $verbProceed);
+        $template->setValue('verb_notified_passive', $verbNotifiedPassive);
+        $template->setValue('edital_vocative', $editalVocative);
+        $template->setValue('verb_go', $verbGo);
     }
 
     private function fillPersonData(TemplateProcessor $template, Notification $notification): void
@@ -88,8 +109,9 @@ class NotificationDocumentService
         $template->cloneBlock('BLOCK_PEOPLE', $count, true, true);
 
         foreach ($people as $index => $person) {
-            $line = mb_strtoupper($person->name) . ", CPF nº " . $person->document;
-            $template->setValue('line_qualification#' . ($index + 1), $line);
+            $i = $index + 1;
+            $line = mb_strtoupper($person->name).', CPF nº '.$person->document;
+            $template->setValue("line_qualification#{$i}", $line);
         }
 
         $firstPerson = $people->first();
@@ -109,9 +131,12 @@ class NotificationDocumentService
         $natureLabel = $natureMap[$notification->notifiable_type] ?? 'Alienação Fiduciária';
         $template->setValue('nature', $natureLabel);
 
-        if (!$data) {
+        if (! $data) {
             $fields = ['credor', 'cnpj_number', 'office', 'contract_number', 'contract_date', 'total_amount_debt', 'emoluments_intimation', 'guarantee_property_registration', 'guarantee_property_address', 'contract_registration_act', 'default_period', 'debt_position_date'];
-            foreach ($fields as $field) $template->setValue($field, '');
+            foreach ($fields as $field) {
+                $template->setValue($field, '');
+            }
+
             return;
         }
 
@@ -126,14 +151,14 @@ class NotificationDocumentService
             $cnpjNumber = trim($parts[1]);
         }
 
-        $template->setValue('creditor', mb_strtoupper($creditorName));
+        $template->setValue('credor', mb_strtoupper($creditorName));
         $template->setValue('cnpj_number', $cnpjNumber);
 
         $officeValue = $data->office ?? null;
         $officeFormatted = '____';
         if ($officeValue) {
             if (is_numeric($officeValue)) {
-                $officeFormatted = number_format((float)$officeValue, 0, ',', '.');
+                $officeFormatted = number_format((float) $officeValue, 0, ',', '.');
             } else {
                 $officeFormatted = $officeValue;
             }
@@ -171,24 +196,25 @@ class NotificationDocumentService
     {
         $people = $notification->notifiedPeople;
 
-        $textList = $people->map(function($person) {
+        $textList = $people->map(function ($person) {
             $name = mb_strtoupper($person->name);
             $doc = $person->document;
+
             return "{$name}, inscrito no CPF nº {$doc}";
         })->join(', ', ' e ');
 
         $template->setValue('text_list_edital', $textList);
     }
 
-
     private function formatDate(TemplateProcessor $t, string $key, ?string $date): void
     {
-        if (!$date) {
+        if (! $date) {
             $t->setValue($key, '___/___/___');
+
             return;
         }
         $d = Carbon::parse($date);
-        $t->setValue($key, $d->day . ' de ' . $d->translatedFormat('F') . ' de ' . $d->year);
+        $t->setValue($key, $d->day.' de '.$d->translatedFormat('F').' de '.$d->year);
     }
 
     private function formatCurrency(TemplateProcessor $t, string $key, $value): void

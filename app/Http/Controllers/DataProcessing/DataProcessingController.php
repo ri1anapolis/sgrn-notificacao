@@ -8,6 +8,7 @@ use App\Http\Requests\DataProcessing\StoreProtocolRequest;
 use App\Http\Requests\DataProcessing\UpdateNotificationRequest;
 use App\Models\Notification;
 use App\Services\DataProcessingService;
+use App\Services\NotificationDocumentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -59,5 +60,18 @@ class DataProcessingController extends Controller
         }
 
         return back()->with('success', 'Dados salvos com sucesso!');
+    }
+
+    public function downloadDocument(Notification $notification, NotificationDocumentService $documentService)
+    {
+        try {
+            $tempFile = $documentService->generateNotificationDoc($notification);
+
+            $fileName = "Notificacao_{$notification->protocol}.docx";
+
+            return response()->download($tempFile, $fileName)->deleteFileAfterSend(true);
+        } catch (\Exception $e) {
+            return back()->withErrors(['geral' => 'Erro ao gerar documento: '.$e->getMessage()]);
+        }
     }
 }

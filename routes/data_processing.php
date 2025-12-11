@@ -16,4 +16,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::put('/data-processing/{notification}', [DataProcessingController::class, 'update'])
         ->name('data-processing.update');
+
+    Route::get('/data-processing/{notification}/download/n', [DataProcessingController::class, 'downloadDocument'])
+        ->name('data-processing.download');
 });

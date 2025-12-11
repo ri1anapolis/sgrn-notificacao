@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Notification;
 use App\Policies\NotificationPolicy;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -25,5 +26,6 @@ class AppServiceProvider extends ServiceProvider
     {
         Model::unguard();
         Gate::policy(Notification::class, NotificationPolicy::class);
+        Carbon::setLocale('pt-BR');
     }
 }

@@ -8,7 +8,7 @@ use App\Http\Requests\DataProcessing\StoreProtocolRequest;
 use App\Http\Requests\DataProcessing\UpdateNotificationRequest;
 use App\Models\Notification;
 use App\Services\DataProcessingService;
-use App\Services\NotificationDocumentService;
+use App\Services\DocumentGenerators\DocumentGeneratorFactory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -62,12 +62,21 @@ class DataProcessingController extends Controller
         return back()->with('success', 'Dados salvos com sucesso!');
     }
 
-    public function downloadDocument(Notification $notification, NotificationDocumentService $documentService)
-    {
+    public function downloadNotification(
+        Notification $notification,
+        DocumentGeneratorFactory $factory
+    ) {
         try {
-            $tempFile = $documentService->generateNotificationDoc($notification);
+            $generator = $factory->resolve($notification->notifiable_type);
+            $tempFile = $generator->generate($notification);
 
-            $fileName = "Notificacao_{$notification->protocol}.docx";
+            $natureName = match (class_basename($notification->notifiable_type)) {
+                'AlienationRealEstate' => 'Alienacao Fiduciaria Imóvel',
+                'RetificationArea' => 'Retificacao de Area',
+                default => 'Geral',
+            };
+
+            $fileName = "Notificacao {$natureName} {$notification->protocol}.docx";
 
             return response()->download($tempFile, $fileName)->deleteFileAfterSend(true);
         } catch (\Exception $e) {

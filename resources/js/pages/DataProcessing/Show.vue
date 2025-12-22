@@ -137,7 +137,7 @@ const downloadDocument = () => {
         return;
     }
 
-    const url = route('data-processing.download', props.notification.protocol);
+    const url = route('data-processing.notification.download', props.notification.protocol);
     window.open(url, '_self');
 };
 

@@ -141,6 +141,16 @@ const downloadDocument = () => {
     window.open(url, '_self');
 };
 
+const downloadEnvelope = () => {
+    if (form.isDirty) {
+        alert('Salve as alterações antes de gerar o documento!');
+        return;
+    }
+
+    const url = route('data-processing.envelope.download', props.notification.protocol);
+    window.open(url, '_self');
+};
+
 </script>
 
 <template>
@@ -163,6 +173,11 @@ const downloadDocument = () => {
             <button @click="downloadDocument"
                 class="rounded-md bg-amber-400 hover:bg-amber-600 px-6 py-2.5 text-sm font-semibold text-zinc-900 shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer hover:scale-105 duration-100">
                 Baixar Notificação
+            </button>
+
+            <button @click="downloadEnvelope"
+                class="rounded-md bg-stone-500 hover:bg-stone-700 px-6 py-2.5 text-sm font-semibold text-white shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer hover:scale-105 duration-100">
+                Baixar Envelope
             </button>
         </div>
     </AppLayout>

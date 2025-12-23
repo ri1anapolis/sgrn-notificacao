@@ -83,4 +83,18 @@ class DataProcessingController extends Controller
             return back()->withErrors(['geral' => 'Erro ao gerar documento: '.$e->getMessage()]);
         }
     }
+
+    public function downloadEnvelope(
+        Notification $notification,
+        \App\Services\DocumentGenerators\EnvelopeDocGenerator $generator
+    ) {
+        try {
+            $tempFile = $generator->generate($notification);
+            $fileName = "Envelope Notificacao {$notification->protocol}.docx";
+
+            return response()->download($tempFile, $fileName)->deleteFileAfterSend(true);
+        } catch (\Exception $e) {
+            return back()->withErrors(['geral' => 'Erro ao gerar envelope: '.$e->getMessage()]);
+        }
+    }
 }

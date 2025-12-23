@@ -19,4 +19,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/data-processing/{notification}/notification/download', [DataProcessingController::class, 'downloadNotification'])
         ->name('data-processing.notification.download');
+
+    Route::get('/data-processing/{notification}/envelope/download', [DataProcessingController::class, 'downloadEnvelope'])
+        ->name('data-processing.envelope.download');
 });

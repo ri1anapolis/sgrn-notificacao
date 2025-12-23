@@ -86,3 +86,56 @@ it('downloads alienation notification with correct filename', function () {
         unlink($templatePath);
     }
 });
+
+it('downloads envelope with correct filename', function () {
+    $user = User::factory()->create();
+    actingAs($user);
+
+    $retification = RetificationArea::create([
+        'office' => 1,
+        'rectifying_property_identification' => 'Lote Envelope',
+        'rectifying_property_registration' => '12345',
+    ]);
+
+    $notification = Notification::factory()
+        ->for($retification, 'notifiable')
+        ->has(NotifiedPerson::factory()->count(1))
+        ->has(Address::factory()->count(1))
+        ->create([
+            'protocol' => '555.444',
+        ]);
+
+    if (! file_exists(storage_path('app/templates'))) {
+        mkdir(storage_path('app/templates'), 0755, true);
+    }
+    $templateFilename = 'envelope_test.docx';
+    $templatePath = storage_path("app/templates/{$templateFilename}");
+
+    $realPath = storage_path('app/templates/envelope.docx');
+    $backupPath = storage_path('app/templates/envelope.docx.bak');
+    $restored = false;
+
+    if (file_exists($realPath)) {
+        rename($realPath, $backupPath);
+        $restored = true;
+    }
+
+    $zip = new ZipArchive;
+    if ($zip->open($realPath, ZipArchive::CREATE) === true) {
+        $zip->addFromString('word/document.xml', '<w:document></w:document>');
+        $zip->close();
+    }
+
+    try {
+        $response = get(route('data-processing.envelope.download', $notification));
+        $response->assertOk();
+        $response->assertHeader('content-disposition', 'attachment; filename="Envelope Notificacao 555.444.docx"');
+    } finally {
+        if (file_exists($realPath)) {
+            unlink($realPath);
+        }
+        if ($restored && file_exists($backupPath)) {
+            rename($backupPath, $realPath);
+        }
+    }
+});

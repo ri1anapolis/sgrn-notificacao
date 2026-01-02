@@ -9,6 +9,7 @@ const props = defineProps<{
     label: string;
     placeholder?: string;
     error?: string;
+    class?: string;
 }>();
 
 const emit = defineEmits<{
@@ -55,5 +56,6 @@ const maskedValue = computed({
         v-model="maskedValue"
         v-maska="dateMaskOptions"
         :error="error"
+        :class="class"
     />
 </template>

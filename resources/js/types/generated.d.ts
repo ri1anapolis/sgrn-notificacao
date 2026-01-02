@@ -52,6 +52,14 @@ grace_period: boolean;
 contractual_clause: string | null;
 real_estate_registry_location: string | null;
 };
+export type DigitalContactData = {
+id: number;
+contact_date: string | null;
+contact_time: string | null;
+whatsapp_result: string | null;
+email_result: string | null;
+custom_result: string | null;
+};
 export type DiligenceData = {
 id: number;
 visit_number: number;
@@ -88,6 +96,7 @@ notifiable: any | null;
 notifiable_type: string | null;
 notified_people: any | null;
 addresses: any | null;
+public_notice: App.Data.PublicNoticeData | null;
 };
 export type NotifiedPersonData = {
 id: number;
@@ -96,6 +105,7 @@ document: string;
 email: string | null;
 phone: string | null;
 gender: App.Enums.NotifiedPersonGender;
+digital_contact: App.Data.DigitalContactData | null;
 };
 export type OtherData = {
 id: number;
@@ -113,6 +123,19 @@ default_period: string | null;
 grace_period: boolean;
 contractual_clause: string | null;
 real_estate_registry_location: string | null;
+};
+export type PublicNoticeData = {
+id: number;
+publication_organ: string;
+days_between_email_and_notice: number | null;
+publications: any | null;
+};
+export type PublicNoticePublicationData = {
+id: number;
+publication_order: number;
+edition: string | null;
+notice_number: string | null;
+publication_date: string | null;
 };
 export type PurchaseAndSaleIncorporationData = {
 id: number;

@@ -6,6 +6,7 @@ use App\Enums\NotifiedPersonGender;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class NotifiedPerson extends Model
 {
@@ -23,5 +24,10 @@ class NotifiedPerson extends Model
     public function addresses()
     {
         return $this->belongsToMany(Address::class, 'address_notified_person');
+    }
+
+    public function digitalContacts(): HasMany
+    {
+        return $this->hasMany(DigitalContact::class);
     }
 }

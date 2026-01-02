@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\Notifications\DigitalContactController;
 use App\Http\Controllers\Notifications\NotificationController;
 use App\Http\Controllers\Notifications\NotificationDiligenceController;
+use App\Http\Controllers\Notifications\PublicNoticeController;
 use App\Models\Notification;
 use Illuminate\Routing\Route as RouteObject;
 use Illuminate\Support\Facades\Route;
@@ -15,6 +17,9 @@ Route::bind('notification', function ($value, RouteObject $route) {
         'notifications.show',
         'notifications.diligence.show',
         'notifications.diligence.store',
+        'notifications.public-notice.store',
+        'notifications.digital-contacts.index',
+        'notifications.digital-contacts.store',
     ];
 
     if (in_array($routeName, $notificationErrorRoutes)) {
@@ -61,4 +66,13 @@ Route::middleware(['auth', 'verified'])
 
         Route::put('/diligence/{address}/{diligence}', [NotificationDiligenceController::class, 'update'])
             ->name('notifications.diligence.update');
+
+        Route::post('/public-notice', [PublicNoticeController::class, 'store'])
+            ->name('notifications.public-notice.store');
+
+        Route::get('/digital-contacts', [DigitalContactController::class, 'index'])
+            ->name('notifications.digital-contacts.index');
+
+        Route::post('/digital-contacts/{notifiedPerson}', [DigitalContactController::class, 'store'])
+            ->name('notifications.digital-contacts.store');
     });

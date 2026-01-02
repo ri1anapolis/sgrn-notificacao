@@ -32,11 +32,13 @@ class NotificationData extends Data
         public ?DataCollection $notified_people,
         #[DataCollectionOf(AddressData::class)]
         public ?DataCollection $addresses,
+
+        public ?PublicNoticeData $public_notice,
     ) {}
 
     public static function fromModel(Notification $notification): self
     {
-        $notification->loadMissing(['notifiedPeople', 'addresses', 'notifiable']);
+        $notification->loadMissing(['notifiedPeople', 'addresses', 'notifiable', 'publicNotice.publications']);
 
         $notifiableData = null;
 
@@ -48,8 +50,13 @@ class NotificationData extends Data
             }
         }
 
-        $notifiedPeopleCollection = new DataCollection(NotifiedPersonData::class, $notification->notifiedPeople);
+        $notifiedPeopleData = $notification->notifiedPeople->map(
+            fn ($person) => NotifiedPersonData::fromModel($person, $notification->id)
+        );
+        $notifiedPeopleCollection = new DataCollection(NotifiedPersonData::class, $notifiedPeopleData->toArray());
         $addressesCollection = new DataCollection(AddressData::class, $notification->addresses);
+
+        $publicNoticeData = $notification->publicNotice ? PublicNoticeData::fromModel($notification->publicNotice) : null;
 
         return new self(
             id: $notification->id,
@@ -59,6 +66,7 @@ class NotificationData extends Data
 
             notified_people: $notifiedPeopleCollection,
             addresses: $addressesCollection,
+            public_notice: $publicNoticeData,
         );
     }
 }

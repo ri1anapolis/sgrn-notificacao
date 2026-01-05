@@ -6,6 +6,9 @@ import { Head, useForm } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
 import DataProcessingHeader from './components/DataProcessingHeader.vue';
 import NotificationForm from './components/NotificationForm.vue';
+import PublicNoticeModal from '@/pages/Notifications/components/PublicNoticeModal.vue';
+import DigitalContactSelectModal from '@/pages/Notifications/components/DigitalContactSelectModal.vue';
+import DigitalContactFormModal from '@/pages/Notifications/components/DigitalContactFormModal.vue';
 
 const props = defineProps<{
     notification: App.Data.NotificationData;
@@ -58,6 +61,33 @@ watch(selectedNature, (newNature, oldNature) => {
 });
 
 const toast = useToast();
+
+const showPublicNoticeModal = ref(false);
+const showDigitalContactSelectModal = ref(false);
+const showDigitalContactFormModal = ref(false);
+const selectedPerson = ref<App.Data.NotifiedPersonData | null>(null);
+
+const openDigitalContactFlow = () => {
+    showDigitalContactSelectModal.value = true;
+};
+
+const onPersonSelected = (person: App.Data.NotifiedPersonData) => {
+    selectedPerson.value = person;
+    showDigitalContactSelectModal.value = false;
+    showDigitalContactFormModal.value = true;
+};
+
+const onBackToPersonSelect = () => {
+    showDigitalContactFormModal.value = false;
+    showDigitalContactSelectModal.value = true;
+};
+
+const closeAllModals = () => {
+    showPublicNoticeModal.value = false;
+    showDigitalContactSelectModal.value = false;
+    showDigitalContactFormModal.value = false;
+    selectedPerson.value = null;
+};
 
 const submit = () => {
     const notifiableType = selectedNature.value ? NATURE_TO_TYPE_MAP[selectedNature.value] : null;
@@ -164,7 +194,7 @@ const downloadEnvelope = () => {
                 v-model:nature="selectedNature" v-model:notifiable="form.notifiable" :errors="form.errors" />
         </div>
 
-        <div class="m-auto mt-8 flex w-11/12 justify-end md:w-4xl gap-6">
+        <div class="m-auto mt-8 flex w-11/12 justify-end md:w-4xl gap-6 flex-wrap">
             <button @click.prevent="submit" :disabled="form.processing"
                 class="rounded-md bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-400 hover:scale-105 duration-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer">
                 {{ form.processing ? 'Salvando...' : 'Salvar Alterações' }}
@@ -179,6 +209,39 @@ const downloadEnvelope = () => {
                 class="rounded-md bg-stone-500 hover:bg-stone-700 px-6 py-2.5 text-sm font-semibold text-white shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer hover:scale-105 duration-100">
                 Baixar Envelope
             </button>
+
+            <button @click="showPublicNoticeModal = true"
+                class="rounded-md bg-[#d4af37] hover:bg-[#f0c850] px-6 py-2.5 text-sm font-semibold text-black shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d4af37] cursor-pointer hover:scale-105 duration-100">
+                Dados de Edital
+            </button>
+
+            <button @click="openDigitalContactFlow"
+                class="rounded-md bg-green-600 hover:bg-green-700 px-6 py-2.5 text-sm font-semibold text-white shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 cursor-pointer hover:scale-105 duration-100">
+                WhatsApp/Email
+            </button>
         </div>
+
+        <PublicNoticeModal
+            :show="showPublicNoticeModal"
+            :notification-protocol="notification.protocol"
+            :public-notice="notification.public_notice"
+            @close="showPublicNoticeModal = false"
+        />
+
+        <DigitalContactSelectModal
+            :show="showDigitalContactSelectModal"
+            :notified-people="form.notified_people"
+            @close="showDigitalContactSelectModal = false"
+            @select="onPersonSelected"
+        />
+
+        <DigitalContactFormModal
+            :show="showDigitalContactFormModal"
+            :notification-protocol="notification.protocol"
+            :person="selectedPerson"
+            @close="closeAllModals"
+            @back="onBackToPersonSelect"
+        />
     </AppLayout>
 </template>
+

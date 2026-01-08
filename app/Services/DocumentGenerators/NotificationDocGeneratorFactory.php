@@ -4,7 +4,7 @@ namespace App\Services\DocumentGenerators;
 
 use InvalidArgumentException;
 
-class DocumentGeneratorFactory
+class NotificationDocGeneratorFactory
 {
     protected array $generators = [
         'alienation_real_estate' => AlienationRealEstateDocGenerator::class,

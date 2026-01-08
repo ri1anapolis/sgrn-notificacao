@@ -97,6 +97,8 @@ notifiable_type: string | null;
 notified_people: any | null;
 addresses: any | null;
 public_notice: App.Data.PublicNoticeData | null;
+digital_contacts: any | null;
+can_download_certificate: boolean;
 };
 export type NotifiedPersonData = {
 id: number;

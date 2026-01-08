@@ -156,7 +156,7 @@ const handleGracePeriod = (event: Event) => {
             :error="errors?.notifiable?.contract_registry_data" />
 
         <label for="registry-select" class="block text-sm font-medium text-gray-700">
-            Cartório onde o imóvel dado em garantia se encontra
+            Cartório (RTD) onde o contrato foi registrado
         </label>
 
         <div class="relative">
@@ -176,7 +176,7 @@ const handleGracePeriod = (event: Event) => {
         </div>
 
         <div v-if="selectedRegistry === 'Outro'" class="animate-fade-in-down">
-            <InputForm id="real-estate-registry-location" type="text" label="Digite o nome do cartório"
+            <InputForm id="contract-registry-office" type="text" label="Digite o nome do cartório"
                 placeholder="Digite o nome do cartório..." :model-value="internalData.contract_registry_office"
                 @update:model-value="updateField('contract_registry_office', $event)"
                 :error="errors?.notifiable?.contract_registry_office" />

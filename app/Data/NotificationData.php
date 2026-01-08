@@ -34,11 +34,20 @@ class NotificationData extends Data
         public ?DataCollection $addresses,
 
         public ?PublicNoticeData $public_notice,
+        #[DataCollectionOf(DigitalContactData::class)]
+        public ?DataCollection $digital_contacts,
+        public bool $can_download_certificate = false,
     ) {}
 
     public static function fromModel(Notification $notification): self
     {
-        $notification->loadMissing(['notifiedPeople', 'addresses', 'notifiable', 'publicNotice.publications']);
+        $notification->loadMissing([
+            'notifiedPeople',
+            'addresses.diligences.diligenceResult',
+            'notifiable',
+            'publicNotice.publications',
+            'digitalContacts',
+        ]);
 
         $notifiableData = null;
 
@@ -54,9 +63,22 @@ class NotificationData extends Data
             fn ($person) => NotifiedPersonData::fromModel($person, $notification->id)
         );
         $notifiedPeopleCollection = new DataCollection(NotifiedPersonData::class, $notifiedPeopleData->toArray());
-        $addressesCollection = new DataCollection(AddressData::class, $notification->addresses);
+
+        $addressesData = $notification->addresses->map(fn ($address) => AddressData::from($address));
+        $addressesCollection = new DataCollection(AddressData::class, $addressesData->toArray());
 
         $publicNoticeData = $notification->publicNotice ? PublicNoticeData::fromModel($notification->publicNotice) : null;
+        $digitalContactsCollection = new DataCollection(DigitalContactData::class, $notification->digitalContacts->toArray());
+
+        $hasSuccessDiligence = $notification->addresses->flatMap->diligences->some(function ($diligence) {
+            return $diligence->diligenceResult &&
+                   $diligence->diligenceResult->group === 'Devedor Presente - Notificação Realizada Com Sucesso';
+        });
+
+        $allAddressesHaveThreeVisits = $notification->addresses->count() > 0 &&
+            $notification->addresses->every(fn ($address) => $address->diligences->count() >= 3);
+
+        $canDownloadCertificate = $hasSuccessDiligence || $allAddressesHaveThreeVisits;
 
         return new self(
             id: $notification->id,
@@ -67,6 +89,8 @@ class NotificationData extends Data
             notified_people: $notifiedPeopleCollection,
             addresses: $addressesCollection,
             public_notice: $publicNoticeData,
+            digital_contacts: $digitalContactsCollection,
+            can_download_certificate: $canDownloadCertificate,
         );
     }
 }

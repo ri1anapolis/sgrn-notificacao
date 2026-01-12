@@ -8,7 +8,7 @@ use App\Http\Requests\DataProcessing\StoreProtocolRequest;
 use App\Http\Requests\DataProcessing\UpdateNotificationRequest;
 use App\Models\Notification;
 use App\Services\DataProcessingService;
-use App\Services\DocumentGenerators\DocumentGeneratorFactory;
+use App\Services\DocumentGenerators\NotificationDocGeneratorFactory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -64,7 +64,7 @@ class DataProcessingController extends Controller
 
     public function downloadNotification(
         Notification $notification,
-        DocumentGeneratorFactory $factory
+        NotificationDocGeneratorFactory $factory
     ) {
         try {
             $generator = $factory->resolve($notification->notifiable_type);
@@ -95,6 +95,21 @@ class DataProcessingController extends Controller
             return response()->download($tempFile, $fileName)->deleteFileAfterSend(true);
         } catch (\Exception $e) {
             return back()->withErrors(['geral' => 'Erro ao gerar envelope: '.$e->getMessage()]);
+        }
+    }
+
+    public function downloadCertificate(
+        Notification $notification,
+        \App\Services\DocumentGenerators\CertificateDocGeneratorFactory $factory
+    ) {
+        try {
+            $generator = $factory->resolve($notification);
+            $tempFile = $generator->generate($notification);
+            $fileName = "Certidao Notificacao {$notification->protocol}.docx";
+
+            return response()->download($tempFile, $fileName)->deleteFileAfterSend(true);
+        } catch (\Exception $e) {
+            return back()->withErrors(['geral' => 'Erro ao gerar certidao: '.$e->getMessage()]);
         }
     }
 }

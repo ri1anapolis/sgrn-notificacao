@@ -181,6 +181,21 @@ const downloadEnvelope = () => {
     window.open(url, '_self');
 };
 
+const downloadCertificate = () => {
+    if (form.isDirty) {
+        alert('Salve as alterações antes de gerar o documento!');
+        return;
+    }
+
+    if (!props.notification.can_download_certificate) {
+        toast.info("A certidão só pode ser emitida se houver uma notificação de sucesso ou se todos os endereços tiverem 3 visitas realizadas.");
+        return;
+    }
+
+    const url = route('data-processing.certificate.download', props.notification.protocol);
+    window.open(url, '_self');
+};
+
 </script>
 
 <template>
@@ -208,6 +223,14 @@ const downloadEnvelope = () => {
             <button @click="downloadEnvelope"
                 class="rounded-md bg-stone-500 hover:bg-stone-700 px-6 py-2.5 text-sm font-semibold text-white shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer hover:scale-105 duration-100">
                 Baixar Envelope
+            </button>
+
+            <button @click="downloadCertificate"
+                :class="[
+                    'rounded-md px-6 py-2.5 text-sm font-semibold shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 cursor-pointer hover:scale-105 duration-100',
+                    notification.can_download_certificate ? 'bg-emerald-600 hover:bg-emerald-800 text-white' : 'bg-zinc-400 text-zinc-100'
+                ]">
+                Baixar Certidão
             </button>
 
             <button @click="showPublicNoticeModal = true"

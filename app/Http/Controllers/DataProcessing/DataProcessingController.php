@@ -73,6 +73,7 @@ class DataProcessingController extends Controller
             $natureName = match (class_basename($notification->notifiable_type)) {
                 'AlienationRealEstate' => 'Alienacao Fiduciaria Imóvel',
                 'RetificationArea' => 'Retificacao de Area',
+                'Adjudication' => 'Adjudicacao Compulsoria',
                 default => 'Geral',
             };
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Address;
+use App\Models\Adjudication;
 use App\Models\AlienationRealEstate;
 use App\Models\Notification;
 use App\Models\NotifiedPerson;
@@ -79,4 +80,28 @@ it('downloads envelope with correct filename', function () {
 
     $response->assertOk();
     $response->assertHeader('content-disposition', 'attachment; filename="Envelope Notificacao 555.444.docx"');
+});
+
+it('downloads adjudication notification with correct filename', function () {
+    $user = User::factory()->create();
+    actingAs($user);
+
+    $adjudication = Adjudication::factory()->create([
+        'office' => 1,
+        'adjudicated_property_identification' => 'Lote 15, Quadra 10',
+        'adjudicated_property_registration' => '54321',
+    ]);
+
+    $notification = Notification::factory()
+        ->for($adjudication, 'notifiable')
+        ->has(NotifiedPerson::factory()->count(1))
+        ->has(Address::factory()->count(1))
+        ->create([
+            'protocol' => '123.456',
+        ]);
+
+    $response = get(route('data-processing.notification.download', $notification));
+
+    $response->assertOk();
+    $response->assertHeader('content-disposition', 'attachment; filename="Notificacao Adjudicacao Compulsoria 123.456.docx"');
 });

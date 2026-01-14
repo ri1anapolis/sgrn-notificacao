@@ -9,6 +9,7 @@ class NotificationDocGeneratorFactory
     protected array $generators = [
         'alienation_real_estate' => AlienationRealEstateDocGenerator::class,
         'retification_area' => RectificationNotificationDocGenerator::class,
+        'adjudication' => AdjudicationNotificationDocGenerator::class,
     ];
 
     public function resolve(string $notifiableType): DocumentGeneratorInterface

@@ -74,6 +74,8 @@ class DataProcessingController extends Controller
                 'AlienationRealEstate' => 'Alienacao Fiduciaria Imóvel',
                 'RetificationArea' => 'Retificacao de Area',
                 'Adjudication' => 'Adjudicacao Compulsoria',
+                'PurchaseAndSaleIncorporation' => 'Compromisso de Compra e Venda Incorporacao',
+                'PurchaseAndSaleSubdivision' => 'Compromisso de Compra e Venda Loteamento',
                 default => 'Geral',
             };
 

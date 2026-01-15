@@ -8,7 +8,7 @@ use Carbon\Carbon;
 use Exception;
 use PhpOffice\PhpWord\TemplateProcessor;
 
-class AlienationRealEstateDocGenerator implements DocumentGeneratorInterface
+class PurchaseAndSaleNotificationDocGenerator implements DocumentGeneratorInterface
 {
     use DocumentFormatterTrait;
 
@@ -16,7 +16,7 @@ class AlienationRealEstateDocGenerator implements DocumentGeneratorInterface
     {
         $notification->load(['notifiable', 'notifiedPeople', 'addresses']);
 
-        $templatePath = storage_path('app/templates/alienation_real_estate_notification.docx');
+        $templatePath = storage_path('app/templates/purchase_and_sale_notification.docx');
         if (! file_exists($templatePath)) {
             throw new Exception("Modelo de documento não encontrado: {$templatePath}");
         }
@@ -25,12 +25,11 @@ class AlienationRealEstateDocGenerator implements DocumentGeneratorInterface
 
         $this->fillBasicData($template, $notification);
         $this->fillPersonData($template, $notification);
+        $this->fillAddressData($template, $notification);
         $this->fillSpecificData($template, $notification);
         $this->fillSignatureBlock($template, $notification);
-        $this->fillGuestList($template, $notification);
-        $this->fillEditalData($template, $notification);
 
-        $tempFile = tempnam(sys_get_temp_dir(), 'notificacao_n_');
+        $tempFile = tempnam(sys_get_temp_dir(), 'notificacao_purchase_');
         $template->saveAs($tempFile);
 
         return $tempFile;
@@ -47,6 +46,7 @@ class AlienationRealEstateDocGenerator implements DocumentGeneratorInterface
         $template->setValue('protocol', $protocolValue);
 
         $now = Carbon::now();
+        $template->setValue('year', $now->year);
         $dateString = $now->day.' de '.$now->translatedFormat('F').' de '.$now->year.'.';
         $template->setValue('date', $dateString);
 
@@ -61,16 +61,10 @@ class AlienationRealEstateDocGenerator implements DocumentGeneratorInterface
 
         if ($peopleCount > 1) {
             $greeting = $hasMale ? 'Prezados Senhores,' : 'Prezadas Senhoras,';
-            $vocative = $hasMale ? 'Senhores,' : 'Senhoras,';
+            $vocative = $hasMale ? 'Aos Senhores,' : 'Às Senhoras,';
             $verbIntimate = 'intimar-lhes';
             $verbComply = 'cumpram';
-            $pronounTreatment = 'Vossas Senhorias';
-            $verbProceed = 'efetuarem';
-            $verbNotifiedPassive = 'ficam Vossas Senhorias cientificadas';
-            $editalVocative = $hasMale ? 'os senhores' : 'as senhoras';
-            $verbGo = 'se dirijam';
-            $guestTitle = $hasMale ? 'Convidados EM CONJUNTO:' : 'Convidadas EM CONJUNTO:';
-            $guestRequestPhrase = $hasMale ? 'dos senhores abaixo nomeados' : 'das senhoras abaixo nomeadas';
+            $pronounTreatment = 'ficam Vossas Senhorias cientificadas';
         } else {
             $person = $notification->notifiedPeople->first();
 
@@ -83,32 +77,17 @@ class AlienationRealEstateDocGenerator implements DocumentGeneratorInterface
             $isMale = in_array($gender, ['masculine', 'male', 'm', 'masculino']);
 
             $greeting = $isMale ? 'Prezado Senhor,' : 'Prezada Senhora,';
-            $vocative = $isMale ? 'Senhor,' : 'Senhora,';
+            $vocative = $isMale ? 'Ao Senhor,' : 'À Senhora,';
             $verbIntimate = $isMale ? 'intimá-lo' : 'intimá-la';
             $verbComply = 'cumpra';
-            $pronounTreatment = 'Vossa Senhoria';
-            $verbProceed = 'efetuar';
-            $termCientificado = $isMale ? 'cientificado' : 'cientificada';
-            $verbNotifiedPassive = "fica Vossa Senhoria {$termCientificado}";
-            $editalVocative = $isMale ? 'o senhor' : 'a senhora';
-            $verbGo = 'se dirija';
-            $guestTitle = $isMale ? 'Convidado:' : 'Convidada:';
-            $guestRequestPhrase = $isMale ? 'do senhor abaixo nomeado' : 'da senhora abaixo nomeada';
+            $pronounTreatment = 'fica Vossa Senhoria cientificada';
         }
 
         $template->setValue('greeting', $greeting);
         $template->setValue('vocative', $vocative);
         $template->setValue('verb_intimate', $verbIntimate);
-        $template->setValue('texto_intimar_verb', $verbIntimate);
         $template->setValue('verb_comply', $verbComply);
         $template->setValue('pronoun_treatment', $pronounTreatment);
-        $template->setValue('termo_vossas_senhorias', $pronounTreatment);
-        $template->setValue('verb_proceed', $verbProceed);
-        $template->setValue('verb_notified_passive', $verbNotifiedPassive);
-        $template->setValue('edital_vocative', $editalVocative);
-        $template->setValue('verb_go', $verbGo);
-        $template->setValue('guest_title', $guestTitle);
-        $template->setValue('guest_request_phrase', $guestRequestPhrase);
     }
 
     private function fillPersonData(TemplateProcessor $template, Notification $notification): void
@@ -123,22 +102,30 @@ class AlienationRealEstateDocGenerator implements DocumentGeneratorInterface
             $line = mb_strtoupper($person->name).', CPF nº '.$person->document;
             $template->setValue("line_qualification#{$i}", $line);
         }
+    }
 
-        $firstPerson = $people->first();
-        $address = $notification->addresses->first();
-        $template->setValue('nome_devedor', $firstPerson->name ?? '');
-        $template->setValue('documento_devedor', $firstPerson->document ?? '');
-        $template->setValue('endereco_devedor', $address->address ?? '');
+    private function fillAddressData(TemplateProcessor $template, Notification $notification): void
+    {
+        $addresses = $notification->addresses;
+        $count = $addresses->count();
+
+        $template->cloneBlock('BLOCK_ADDRESSES', $count, true, true);
+
+        foreach ($addresses as $index => $address) {
+            $i = $index + 1;
+            $isLast = ($index === $count - 1);
+            $suffix = $isLast ? '.' : ',';
+            $line = ($address->address ?? '').$suffix;
+            $template->setValue("line_address#{$i}", $line);
+        }
     }
 
     private function fillSpecificData(TemplateProcessor $template, Notification $notification): void
     {
         $data = $notification->notifiable;
 
-        $template->setValue('nature', 'Alienação Fiduciária de Bem Imóvel');
-
         if (! $data) {
-            $fields = ['credor', 'cnpj_number', 'office', 'contract_number', 'contract_date', 'total_amount_debt', 'emoluments_intimation', 'guarantee_property_registration', 'guarantee_property_address', 'contract_registration_act', 'default_period', 'debt_position_date'];
+            $fields = ['creditor', 'cnpj_number', 'office', 'contract_number', 'contract_date', 'total_amount_debt', 'total_amount_debt_written', 'emoluments_intimation', 'emoluments_intimation_written', 'property_purchase_and_sale', 'act', 'registration_number', 'default_period', 'debt_position_date'];
             foreach ($fields as $field) {
                 $template->setValue($field, '');
             }
@@ -146,11 +133,11 @@ class AlienationRealEstateDocGenerator implements DocumentGeneratorInterface
             return;
         }
 
-        $rawCreditor = $data->credor ?? $data->creditor ?? '';
+        $rawCreditor = $data->creditor ?? '';
         $creditorName = $rawCreditor;
         $cnpjNumber = '';
 
-        $parts = preg_split('/[,.-]?\s*CNPJ[:.\\s]*/i', $rawCreditor);
+        $parts = preg_split('/[,.-]?\s*CNPJ[:.\s]*/i', $rawCreditor);
 
         if (count($parts) > 1) {
             $creditorName = trim($parts[0]);
@@ -173,29 +160,20 @@ class AlienationRealEstateDocGenerator implements DocumentGeneratorInterface
 
         $template->setValue('contract_number', $data->contract_number ?? '');
         $template->setValue('act', $data->contract_registration_act ?? '');
-        $template->setValue('registration_number', $data->guarantee_property_registration ?? '');
-        $template->setValue('full_address', $data->guarantee_property_address ?? '');
+        $template->setValue('registration_number', $data->committed_property_registration ?? '');
+        $template->setValue('property_purchase_and_sale', $data->committed_property_identification ?? '');
         $template->setValue('default_period', $data->default_period ?? '');
 
         $this->formatDate($template, 'contract_date', $data->contract_date);
         $this->formatDate($template, 'debt_position_date', $data->debt_position_date);
 
+        $totalDebtValue = (float) ($data->total_amount_debt ?? 0);
         $this->formatCurrency($template, 'total_amount_debt', $data->total_amount_debt);
+        $template->setValue('total_amount_debt_written', $this->numberToWords($totalDebtValue));
+
+        $emolumentsValue = (float) ($data->emoluments_intimation ?? 0);
         $this->formatCurrency($template, 'emoluments_intimation', $data->emoluments_intimation);
-    }
-
-    private function fillGuestList(TemplateProcessor $template, Notification $notification): void
-    {
-        $people = $notification->notifiedPeople;
-        $count = $people->count();
-
-        $template->cloneBlock('BLOCK_GUESTS', $count, true, true);
-
-        foreach ($people as $index => $person) {
-            $i = $index + 1;
-            $template->setValue("name_guest#{$i}", mb_strtoupper($person->name));
-            $template->setValue("doc_guest#{$i}", $person->document);
-        }
+        $template->setValue('emoluments_intimation_written', $this->numberToWords($emolumentsValue));
     }
 
     private function fillSignatureBlock(TemplateProcessor $template, Notification $notification): void
@@ -207,22 +185,14 @@ class AlienationRealEstateDocGenerator implements DocumentGeneratorInterface
 
         foreach ($people as $index => $person) {
             $i = $index + 1;
+            $isLast = ($index === $count - 1);
             $template->setValue("signature_name#{$i}", mb_strtoupper($person->name));
-            $template->setValue("signature_doc#{$i}", $person->document);
+
+            $docValue = $person->document;
+            if (! $isLast) {
+                $docValue .= '</w:t><w:br/><w:t>';
+            }
+            $template->setValue("signature_doc#{$i}", $docValue);
         }
-    }
-
-    private function fillEditalData(TemplateProcessor $template, Notification $notification): void
-    {
-        $people = $notification->notifiedPeople;
-
-        $textList = $people->map(function ($person) {
-            $name = mb_strtoupper($person->name);
-            $doc = $person->document;
-
-            return "{$name}, inscrito no CPF nº {$doc}";
-        })->join(', ', ' e ');
-
-        $template->setValue('text_list_edital', $textList);
     }
 }

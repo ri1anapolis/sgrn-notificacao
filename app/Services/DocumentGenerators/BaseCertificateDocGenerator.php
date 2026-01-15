@@ -3,12 +3,15 @@
 namespace App\Services\DocumentGenerators;
 
 use App\Models\Notification;
+use App\Services\DocumentGenerators\Traits\DocumentFormatterTrait;
 use Carbon\Carbon;
 use Exception;
 use PhpOffice\PhpWord\TemplateProcessor;
 
 abstract class BaseCertificateDocGenerator implements DocumentGeneratorInterface
 {
+    use DocumentFormatterTrait;
+
     /**
      * Get the path to the template file.
      */
@@ -78,7 +81,7 @@ abstract class BaseCertificateDocGenerator implements DocumentGeneratorInterface
         $template->setValue('act_registry', $data->contract_registration_act ?? '');
 
         $this->formatCurrency($template, 'value_debt', $data->total_amount_debt ?? 0);
-        $this->formatDate($template, 'debt_date', $data->debt_position_date ?? null);
+        $this->formatDateShort($template, 'debt_date', $data->debt_position_date ?? null);
 
         $creditor = $data->credor ?? $data->creditor ?? '';
         $cnpj = '';
@@ -243,34 +246,6 @@ abstract class BaseCertificateDocGenerator implements DocumentGeneratorInterface
 
             default => '',
         };
-    }
-
-    protected function isMale($person): bool
-    {
-        if (! $person || ! $person->gender) {
-            return true;
-        }
-        $gender = $person->gender instanceof \BackedEnum ? $person->gender->value : $person->gender;
-
-        return in_array(strtolower((string) $gender), ['masculine', 'male', 'm', 'masculino']);
-    }
-
-    protected function formatDate(TemplateProcessor $t, string $key, ?string $date): void
-    {
-        if (! $date) {
-            $t->setValue($key, '___/___/___');
-
-            return;
-        }
-        $d = Carbon::parse($date);
-        $t->setValue($key, $d->format('d/m/Y'));
-    }
-
-    protected function formatCurrency(TemplateProcessor $t, string $key, $value): void
-    {
-        $val = (float) ($value ?? 0);
-        $formatted = number_format($val, 2, ',', '.');
-        $t->setValue($key, $formatted);
     }
 
     /**

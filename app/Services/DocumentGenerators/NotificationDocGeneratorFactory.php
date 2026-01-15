@@ -10,6 +10,8 @@ class NotificationDocGeneratorFactory
         'alienation_real_estate' => AlienationRealEstateDocGenerator::class,
         'retification_area' => RectificationNotificationDocGenerator::class,
         'adjudication' => AdjudicationNotificationDocGenerator::class,
+        'purchase_and_sale_incorporation' => PurchaseAndSaleNotificationDocGenerator::class,
+        'purchase_and_sale_subdivision' => PurchaseAndSaleNotificationDocGenerator::class,
     ];
 
     public function resolve(string $notifiableType): DocumentGeneratorInterface

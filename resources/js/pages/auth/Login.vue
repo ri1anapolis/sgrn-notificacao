@@ -34,19 +34,11 @@ const submit = () => {
             {{ status }}
         </div>
 
-        <form @submit.prevent="submit" novalidate class="flex flex-col gap-6 bg-[#181410] mx-7 border border-[#b3925c] p-5 rounded-lg pb-8">
+        <form @submit.prevent="submit" novalidate class="mx-7 flex flex-col gap-6 rounded-lg border border-[#b3925c] bg-[#181410] p-5 pb-8">
             <div class="grid gap-6">
                 <div class="grid gap-2">
                     <Label for="email">Email</Label>
-                    <Input
-                        id="email"
-                        type="email"
-                        required
-                        autofocus
-                        autocomplete="email"
-                        v-model="form.email"
-                        placeholder="seu@email.com"
-                    />
+                    <Input id="email" type="email" required autofocus autocomplete="email" v-model="form.email" placeholder="seu@email.com" />
                     <InputError :message="form.errors.email" />
                 </div>
 
@@ -58,7 +50,6 @@ const submit = () => {
                         id="password"
                         type="password"
                         required
-                        
                         autocomplete="current-password"
                         v-model="form.password"
                         placeholder="Digite sua senha..."
@@ -68,12 +59,12 @@ const submit = () => {
 
                 <div class="flex items-center justify-between">
                     <Label for="remember" class="flex items-center space-x-3">
-                        <Checkbox id="remember" v-model="form.remember"  />
+                        <Checkbox id="remember" v-model="form.remember" />
                         <span>Lembrar</span>
                     </Label>
                 </div>
 
-                <Button type="submit" class="mt-4 w-full"  :disabled="form.processing">
+                <Button type="submit" class="mt-4 w-full" :disabled="form.processing">
                     <LoaderCircle v-if="form.processing" class="h-4 w-4 animate-spin" />
                     Entrar
                 </Button>

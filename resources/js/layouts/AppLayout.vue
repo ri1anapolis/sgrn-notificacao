@@ -1,34 +1,25 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/app/AppHeaderLayout.vue';
+import AppHeaderLayout from '@/layouts/app/AppHeaderLayout.vue';
 
-const props = defineProps({
-    pageTitle: {
-        type: String,
-        required: true,
-    },
-
-    textButton: {
-        type: String,
-        required: true,
-    },
-
-    linkButton: {
-        type: String,
-        required: true,
-    },
-
-    method: {
-        type: String,
-        required: false,
-    },
-
-    hasParameter: { type: Boolean, required: false, default: false },
-})
+defineProps<{
+    pageTitle: string;
+    textButton: string;
+    linkButton: string;
+    method?: 'get' | 'post';
+    hasParameter?: boolean;
+    isDashboard?: boolean;
+}>();
 </script>
 
 <template>
-    <AppLayout :text-button="props.textButton" :page-title="props.pageTitle" :has-parameter="props.hasParameter"
-        :link-button="props.linkButton" :method="props.method">
+    <AppHeaderLayout
+        :page-title="pageTitle"
+        :text-button="textButton"
+        :link-button="linkButton"
+        :method="method"
+        :has-parameter="hasParameter"
+        :is-dashboard="isDashboard"
+    >
         <slot />
-    </AppLayout>
+    </AppHeaderLayout>
 </template>

@@ -23,7 +23,11 @@ export type AppPageProps<T extends Record<string, unknown> = Record<string, unkn
     auth: Auth;
     ziggy: Config & { location: string };
     sidebarOpen: boolean;
-    flash: {succes?: string; error?: string | null};
+    flash: {
+        success?: string;
+        error?: string | null;
+        temporary_code?: string;
+    };
 };
 
 export type BreadcrumbItemType = BreadcrumbItem;

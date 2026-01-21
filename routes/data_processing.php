@@ -25,4 +25,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/data-processing/{notification}/certificate/download', [DataProcessingController::class, 'downloadCertificate'])
         ->name('data-processing.certificate.download');
+
+    Route::get('/data-processing/{notification}/adverse-possession-edital/download', [DataProcessingController::class, 'downloadAdversePossessionEdital'])
+        ->name('data-processing.adverse-possession-edital.download');
 });

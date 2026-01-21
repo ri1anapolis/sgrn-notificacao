@@ -64,6 +64,7 @@ class AlienationRealEstateDocGenerator implements DocumentGeneratorInterface
             $vocative = $hasMale ? 'Senhores,' : 'Senhoras,';
             $verbIntimate = 'intimar-lhes';
             $verbComply = 'cumpram';
+            $verbManifest = 'manifestem';
             $pronounTreatment = 'Vossas Senhorias';
             $verbProceed = 'efetuarem';
             $verbNotifiedPassive = 'ficam Vossas Senhorias cientificadas';
@@ -86,6 +87,7 @@ class AlienationRealEstateDocGenerator implements DocumentGeneratorInterface
             $vocative = $isMale ? 'Senhor,' : 'Senhora,';
             $verbIntimate = $isMale ? 'intimá-lo' : 'intimá-la';
             $verbComply = 'cumpra';
+            $verbManifest = 'manifeste';
             $pronounTreatment = 'Vossa Senhoria';
             $verbProceed = 'efetuar';
             $termCientificado = $isMale ? 'cientificado' : 'cientificada';
@@ -101,6 +103,7 @@ class AlienationRealEstateDocGenerator implements DocumentGeneratorInterface
         $template->setValue('verb_intimate', $verbIntimate);
         $template->setValue('texto_intimar_verb', $verbIntimate);
         $template->setValue('verb_comply', $verbComply);
+        $template->setValue('verb_manifest', $verbManifest);
         $template->setValue('pronoun_treatment', $pronounTreatment);
         $template->setValue('termo_vossas_senhorias', $pronounTreatment);
         $template->setValue('verb_proceed', $verbProceed);

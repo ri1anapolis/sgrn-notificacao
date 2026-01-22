@@ -3,9 +3,10 @@
 import { useToast } from 'vue-toastification';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import DataProcessingHeader from './components/DataProcessingHeader.vue';
 import NotificationForm from './components/NotificationForm.vue';
+import NotificationTypeModal from './components/NotificationTypeModal.vue';
 import PublicNoticeModal from '@/pages/Notifications/components/PublicNoticeModal.vue';
 import DigitalContactSelectModal from '@/pages/Notifications/components/DigitalContactSelectModal.vue';
 import DigitalContactFormModal from '@/pages/Notifications/components/DigitalContactFormModal.vue';
@@ -65,6 +66,7 @@ const toast = useToast();
 const showPublicNoticeModal = ref(false);
 const showDigitalContactSelectModal = ref(false);
 const showDigitalContactFormModal = ref(false);
+const showNotificationTypeModal = ref(false);
 const selectedPerson = ref<App.Data.NotifiedPersonData | null>(null);
 
 const openDigitalContactFlow = () => {
@@ -167,7 +169,18 @@ const downloadDocument = () => {
         return;
     }
 
+    if (props.notification.notifiable_type?.includes('AdversePossession')) {
+        showNotificationTypeModal.value = true;
+        return;
+    }
+
     const url = route('data-processing.notification.download', props.notification.protocol);
+    window.open(url, '_self');
+};
+
+const downloadNotificationWithVariant = (variant: 'public_entity' | 'private') => {
+    showNotificationTypeModal.value = false;
+    const url = route('data-processing.notification.download', props.notification.protocol) + `?variant=${variant}`;
     window.open(url, '_self');
 };
 
@@ -193,6 +206,16 @@ const downloadCertificate = () => {
     }
 
     const url = route('data-processing.certificate.download', props.notification.protocol);
+    window.open(url, '_self');
+};
+
+const downloadAdversePossessionEdital = () => {
+    if (form.isDirty) {
+        alert('Salve as alterações antes de gerar o documento!');
+        return;
+    }
+
+    const url = route('data-processing.adverse-possession-edital.download', props.notification.protocol);
     window.open(url, '_self');
 };
 
@@ -242,6 +265,12 @@ const downloadCertificate = () => {
                 class="rounded-md bg-green-600 hover:bg-green-700 px-6 py-2.5 text-sm font-semibold text-white shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 cursor-pointer hover:scale-105 duration-100">
                 WhatsApp/Email
             </button>
+
+            <button v-if="props.notification.notifiable_type?.includes('AdversePossession')"
+                @click="downloadAdversePossessionEdital"
+                class="rounded-md bg-purple-600 hover:bg-purple-700 px-6 py-2.5 text-sm font-semibold text-white shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600 cursor-pointer hover:scale-105 duration-100">
+                Baixar Edital de Notificação
+            </button>
         </div>
 
         <PublicNoticeModal
@@ -264,6 +293,13 @@ const downloadCertificate = () => {
             :person="selectedPerson"
             @close="closeAllModals"
             @back="onBackToPersonSelect"
+        />
+
+        <NotificationTypeModal
+            :show="showNotificationTypeModal"
+            :notification-protocol="notification.protocol"
+            @close="showNotificationTypeModal = false"
+            @select="downloadNotificationWithVariant"
         />
     </AppLayout>
 </template>

@@ -204,6 +204,12 @@ const downloadCertificate = () => {
         toast.info("A certidão só pode ser emitida se houver uma notificação de sucesso ou se todos os endereços tiverem 3 visitas realizadas.");
         return;
     }
+ 
+    if (!props.notification.has_success_diligence && !props.notification.has_public_notice) {
+        if (!confirm('A notificação não possui dados de edital, deseja baixar o documento ainda sim?')) {
+            return;
+        }
+    }
 
     const url = route('data-processing.certificate.download', props.notification.protocol);
     window.open(url, '_self');

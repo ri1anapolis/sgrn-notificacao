@@ -37,6 +37,8 @@ class NotificationData extends Data
         #[DataCollectionOf(DigitalContactData::class)]
         public ?DataCollection $digital_contacts,
         public bool $can_download_certificate = false,
+        public bool $has_success_diligence = false,
+        public bool $has_public_notice = false,
     ) {}
 
     public static function fromModel(Notification $notification): self
@@ -91,6 +93,8 @@ class NotificationData extends Data
             public_notice: $publicNoticeData,
             digital_contacts: $digitalContactsCollection,
             can_download_certificate: $canDownloadCertificate,
+            has_success_diligence: $hasSuccessDiligence,
+            has_public_notice: (bool) $notification->publicNotice,
         );
     }
 }

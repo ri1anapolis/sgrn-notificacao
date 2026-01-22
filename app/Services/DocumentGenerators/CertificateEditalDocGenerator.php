@@ -112,6 +112,6 @@ class CertificateEditalDocGenerator extends BaseCertificateDocGenerator
             $parts[] = "Tentou-se contato com {$personName} {$contactText}";
         }
 
-        return implode(' ', $parts) ?: 'Nenhum contato digital registrado.';
+        return implode(' ', $parts) ?: 'Nenhum contato digital registrado';
     }
 }

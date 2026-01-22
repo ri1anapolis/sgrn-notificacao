@@ -99,6 +99,8 @@ addresses: any | null;
 public_notice: App.Data.PublicNoticeData | null;
 digital_contacts: any | null;
 can_download_certificate: boolean;
+has_success_diligence: boolean;
+has_public_notice: boolean;
 };
 export type NotifiedPersonData = {
 id: number;

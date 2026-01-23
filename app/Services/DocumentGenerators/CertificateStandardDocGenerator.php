@@ -2,11 +2,13 @@
 
 namespace App\Services\DocumentGenerators;
 
+use App\Services\TemplateResolver;
+
 class CertificateStandardDocGenerator extends BaseCertificateDocGenerator
 {
     protected function getTemplatePath(): string
     {
-        return storage_path('app/templates/certificate_standard.docx');
+        return app(TemplateResolver::class)->resolve('certificate_standard');
     }
 
     /**

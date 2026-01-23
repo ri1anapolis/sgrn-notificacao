@@ -3,6 +3,7 @@
 namespace App\Services\DocumentGenerators;
 
 use App\Models\Notification;
+use App\Services\TemplateResolver;
 use Exception;
 use PhpOffice\PhpWord\TemplateProcessor;
 
@@ -10,7 +11,7 @@ class EnvelopeDocGenerator implements DocumentGeneratorInterface
 {
     public function generate(Notification $notification): string
     {
-        $templatePath = storage_path('app/templates/envelope.docx');
+        $templatePath = app(TemplateResolver::class)->resolve('envelope');
 
         if (! file_exists($templatePath)) {
             throw new Exception("Modelo de documento não encontrado: {$templatePath}");

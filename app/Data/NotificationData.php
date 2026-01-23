@@ -73,8 +73,7 @@ class NotificationData extends Data
         $digitalContactsCollection = new DataCollection(DigitalContactData::class, $notification->digitalContacts->toArray());
 
         $hasSuccessDiligence = $notification->addresses->flatMap->diligences->some(function ($diligence) {
-            return $diligence->diligenceResult &&
-                   $diligence->diligenceResult->group === 'Devedor Presente - Notificação Realizada Com Sucesso';
+            return $diligence->diligenceResult?->isSuccess() ?? false;
         });
 
         $allAddressesHaveThreeVisits = $notification->addresses->count() > 0 &&

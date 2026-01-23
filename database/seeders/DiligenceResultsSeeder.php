@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\DiligenceResult;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class DiligenceResultsSeeder extends Seeder
 {
@@ -41,7 +41,7 @@ class DiligenceResultsSeeder extends Seeder
                 'locatario_desconhece' => 'Locatário ou Ocupante Desconhece o Devedor.',
             ],
             'Imóvel Desocupado' => [
-                'lote_sem_construcao' => 'Lote Sem Construção: O Endereço de Entrega das Notificações é um Lote sem Construção. Não',
+                'lote_sem_construcao' => 'Lote Sem Construção: O Endereço de Entrega das Notificações é um Lote sem Construção.',
                 'imovel_abandonado' => 'Imóvel Manifestamente Abandonado. Pela situação do local, manifestamente não mora ninguém faz algum tempo.',
                 'imovel_em_construcao' => 'Imóvel Ainda em Construção. Ninguém mora do local porque ainda está em construção.',
                 'empresa_fechada' => 'Empresa Fechada de Forma Permanente. O endereço foi encontrado, mas a empresa estava fechada de forma permanente. Os Vizinhos afirmam que a empresa fechou e não mais opera no endereço indicado.',
@@ -53,20 +53,31 @@ class DiligenceResultsSeeder extends Seeder
             ],
             'Retificação de Área' => [
                 'retificacao_invasao' => 'Retificação de Área. Invasão de Área: O notificado se recusou a assinar e disse que não vai assinar porque o vizinho está invadindo a área de propriedade dela (Retificação de Área)',
-                'retificacao_sem_titulo' => 'Retificação de Área: Comprador Sem Título Registrado:',
+                'retificacao_sem_titulo' => 'Retificação de Área: Comprador Sem Título Registrado.',
+            ],
+            'Outros' => [
+                'outros_placeholder' => 'Adicione opções personalizadas neste grupo conforme necessário.',
             ],
         ];
 
+        $groupOrder = 0;
         foreach ($groups as $group => $items) {
+            $itemOrder = 0;
             foreach ($items as $code => $description) {
-                DB::table('diligence_results')->insert([
-                    'group' => $group,
-                    'code' => $code,
-                    'description' => $description,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
+                DiligenceResult::updateOrCreate(
+                    ['code' => $code],
+                    [
+                        'group' => $group,
+                        'description' => $description,
+                        'original_description' => $description,
+                        'order' => $groupOrder * 100 + $itemOrder,
+                        'active' => true,
+                        'is_custom' => false,
+                    ]
+                );
+                $itemOrder++;
             }
+            $groupOrder++;
         }
     }
 }

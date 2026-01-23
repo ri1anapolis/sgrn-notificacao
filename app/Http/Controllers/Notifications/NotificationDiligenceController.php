@@ -31,7 +31,7 @@ class NotificationDiligenceController extends Controller
             'notifiedPeople',
         ]);
 
-        $diligenceResults = DiligenceResult::all();
+        $diligenceResults = DiligenceResult::active()->orderBy('group')->orderBy('order')->get();
 
         return Inertia::render('Notifications/Diligence/Show', [
             'notification' => NotificationData::from(

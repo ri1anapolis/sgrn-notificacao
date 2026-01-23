@@ -4,6 +4,7 @@ namespace App\Services\DocumentGenerators;
 
 use App\Models\Notification;
 use App\Services\DocumentGenerators\Traits\DocumentFormatterTrait;
+use App\Services\TemplateResolver;
 use Carbon\Carbon;
 use Exception;
 use PhpOffice\PhpWord\TemplateProcessor;
@@ -16,7 +17,7 @@ class AdversePossessionNotificationPublicDocGenerator implements DocumentGenerat
     {
         $notification->load(['notifiable', 'notifiedPeople', 'addresses']);
 
-        $templatePath = storage_path('app/templates/adverse_possession_notification_public.docx');
+        $templatePath = app(TemplateResolver::class)->resolve('adverse_possession_notification_public');
         if (! file_exists($templatePath)) {
             throw new Exception("Modelo de documento não encontrado: {$templatePath}");
         }

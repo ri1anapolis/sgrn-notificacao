@@ -24,7 +24,7 @@ const props = defineProps({
 
     icon: {
         type: String,
-        default: 'arrow',
+        required:false,
     },
 });
 
@@ -41,7 +41,7 @@ function handleClick() {
 
 <template>
     <div class="flex justify-center">
-        <button class="btn-shine flex items-center gap-x-1 rounded-xl border border-sky-500 bg-[#ffffff15] p-2 text-sky-500" @click="handleClick">
+        <button class="btn-shine flex items-center gap-x-1 rounded-xl border border-sky-500 bg-[#ffffff15] p-2 text-sky-500 text-sm" @click="handleClick">
             <span>{{ props.text }}</span>
 
             <slot name="icon">

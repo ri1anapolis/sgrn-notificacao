@@ -3,6 +3,7 @@
 namespace App\Services\DocumentGenerators;
 
 use App\Models\Notification;
+use App\Services\TemplateResolver;
 use Carbon\Carbon;
 use Exception;
 use PhpOffice\PhpWord\TemplateProcessor;
@@ -13,7 +14,7 @@ class AdjudicationNotificationDocGenerator implements DocumentGeneratorInterface
     {
         $notification->load(['notifiable', 'notifiedPeople', 'addresses']);
 
-        $templatePath = storage_path('app/templates/adjudication_notification.docx');
+        $templatePath = app(TemplateResolver::class)->resolve('adjudication_notification');
         if (! file_exists($templatePath)) {
             throw new Exception("Modelo de documento não encontrado: {$templatePath}");
         }

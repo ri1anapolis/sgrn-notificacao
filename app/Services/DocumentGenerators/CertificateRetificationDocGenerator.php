@@ -2,11 +2,13 @@
 
 namespace App\Services\DocumentGenerators;
 
+use App\Services\TemplateResolver;
+
 class CertificateRetificationDocGenerator extends BaseCertificateDocGenerator
 {
     protected function getTemplatePath(): string
     {
-        return storage_path('app/templates/certificate_retification.docx');
+        return app(TemplateResolver::class)->resolve('certificate_retification');
     }
 
     /**

@@ -89,6 +89,15 @@ group: string;
 code: string;
 description: string;
 };
+export type DocumentTemplateData = {
+id: number;
+slug: string;
+title: string;
+description: string | null;
+is_customized: boolean;
+updated_at: string | null;
+updated_by: string | null;
+};
 export type NotificationData = {
 id: number;
 protocol: string;

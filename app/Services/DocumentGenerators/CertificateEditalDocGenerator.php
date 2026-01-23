@@ -3,13 +3,14 @@
 namespace App\Services\DocumentGenerators;
 
 use App\Models\Notification;
+use App\Services\TemplateResolver;
 use PhpOffice\PhpWord\TemplateProcessor;
 
 class CertificateEditalDocGenerator extends BaseCertificateDocGenerator
 {
     protected function getTemplatePath(): string
     {
-        return storage_path('app/templates/certificate_edital.docx');
+        return app(TemplateResolver::class)->resolve('certificate_edital');
     }
 
     protected function fillAdditionalData(TemplateProcessor $template, Notification $notification): void

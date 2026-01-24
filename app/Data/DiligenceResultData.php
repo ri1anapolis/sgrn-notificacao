@@ -13,5 +13,12 @@ class DiligenceResultData extends Data
         public string $group,
         public string $code,
         public string $description,
-    ) {}
+        public ?string $original_description = null,
+        public bool $active = true,
+        public bool $is_custom = false,
+        public bool $is_modified = false,
+    ) {
+        $this->is_modified = $this->original_description !== null
+            && $this->description !== $this->original_description;
+    }
 }

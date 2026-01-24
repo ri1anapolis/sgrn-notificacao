@@ -17,3 +17,4 @@ require __DIR__.'/auth.php';
 require __DIR__.'/data_processing.php';
 require __DIR__.'/users.php';
 require __DIR__.'/templates.php';
+require __DIR__.'/diligence_results.php';

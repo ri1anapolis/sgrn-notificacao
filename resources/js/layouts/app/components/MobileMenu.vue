@@ -64,6 +64,12 @@ const closeMenu = () => {
                     />
                     <IconButton
                         v-if="isDashboard && isAdmin"
+                        text="Diligências"
+                        link="diligence-results.index"
+                        @click="closeMenu"
+                    />
+                    <IconButton
+                        v-if="isDashboard && isAdmin"
                         text="Usuários"
                         link="users.index"
                         @click="closeMenu"

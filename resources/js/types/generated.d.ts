@@ -88,6 +88,10 @@ id: number;
 group: string;
 code: string;
 description: string;
+original_description: string | null;
+active: boolean;
+is_custom: boolean;
+is_modified: boolean;
 };
 export type DocumentTemplateData = {
 id: number;

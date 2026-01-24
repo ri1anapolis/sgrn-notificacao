@@ -10,7 +10,7 @@ use Inertia\Testing\AssertableInertia;
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
 
-it('should display the diligence page', function () {
+it('should display the diligence page with active results only', function () {
     $this->user = User::factory()->create(['role' => UserRole::Admin]);
 
     $this->notification = Notification::factory()
@@ -19,7 +19,10 @@ it('should display the diligence page', function () {
 
     $this->address = $this->notification->addresses->first();
 
-    $this->diligenceResults = DiligenceResult::factory()->count(3)->create();
+    DiligenceResult::factory()->count(2)->create(['active' => false]);
+    DiligenceResult::factory()->count(3)->create(['active' => true]);
+
+    $expectedCount = DiligenceResult::active()->count();
 
     actingAs($this->user);
     $response = get(route('notifications.diligence.show', [
@@ -34,6 +37,6 @@ it('should display the diligence page', function () {
             ->component('Notifications/Diligence/Show')
             ->where('notification.id', $this->notification->id)
             ->where('address.id', $this->address->id)
-            ->has('diligenceResults', $this->diligenceResults->count())
+            ->has('diligenceResults', $expectedCount)
     );
 });

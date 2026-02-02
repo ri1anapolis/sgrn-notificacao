@@ -7,6 +7,7 @@ use App\Services\DocumentGenerators\Traits\DocumentFormatterTrait;
 use App\Services\TemplateResolver;
 use Carbon\Carbon;
 use Exception;
+use PhpOffice\PhpWord\Element\TextRun;
 use PhpOffice\PhpWord\TemplateProcessor;
 
 class AlienationRealEstateDocGenerator implements DocumentGeneratorInterface
@@ -142,7 +143,7 @@ class AlienationRealEstateDocGenerator implements DocumentGeneratorInterface
         $template->setValue('nature', 'Alienação Fiduciária de Bem Imóvel');
 
         if (! $data) {
-            $fields = ['credor', 'cnpj_number', 'office', 'contract_number', 'contract_date', 'total_amount_debt', 'emoluments_intimation', 'guarantee_property_registration', 'guarantee_property_address', 'contract_registration_act', 'default_period', 'debt_position_date'];
+            $fields = ['credor', 'cnpj_number', 'office', 'contract_number', 'contract_date', 'total_amount_debt', 'emoluments_intimation', 'guarantee_property_registration', 'guarantee_property_address', 'contract_registration_act', 'default_period', 'debt_position_date', 'contractual_clause'];
             foreach ($fields as $field) {
                 $template->setValue($field, '');
             }
@@ -180,6 +181,7 @@ class AlienationRealEstateDocGenerator implements DocumentGeneratorInterface
         $template->setValue('registration_number', $data->guarantee_property_registration ?? '');
         $template->setValue('full_address', $data->guarantee_property_address ?? '');
         $template->setValue('default_period', $data->default_period ?? '');
+        $template->setValue('contractual_clause', $data->contractual_clause ?? '');
 
         $this->formatDate($template, 'contract_date', $data->contract_date);
         $this->formatDate($template, 'debt_position_date', $data->debt_position_date);
@@ -206,13 +208,45 @@ class AlienationRealEstateDocGenerator implements DocumentGeneratorInterface
     {
         $people = $notification->notifiedPeople;
         $count = $people->count();
+        $clause = $notification->notifiable->contractual_clause ?? '___';
+
+        if ($people->count() > 1) {
+            $template->setValue('section_title', "OUTORGA DE PROCURAÇÕES - Cláusula {$clause}");
+        } else {
+            $template->setValue('section_title', '');
+        }
 
         $template->cloneBlock('BLOCK_SIGNATURE', $count, true, true);
 
         foreach ($people as $index => $person) {
             $i = $index + 1;
-            $template->setValue("signature_name#{$i}", mb_strtoupper($person->name));
-            $template->setValue("signature_doc#{$i}", $person->document);
+            $bodyRun = new TextRun;
+
+            $bodyRun->addText('___________________________________________________em data de _____/_____/_____.');
+            $bodyRun->addTextBreak(1);
+            $bodyRun->addText(mb_strtoupper($person->name), ['bold' => true]);
+            $bodyRun->addText(', CPF nº ', ['bold' => true]);
+            $bodyRun->addText($person->document, ['bold' => true]);
+
+            $others = $people->filter(fn ($p) => $p->id != $person->id);
+
+            if ($others->count() > 0) {
+
+                $bodyRun->addText(', por si e por ');
+                $othersList = $others->map(function ($other) {
+                    return mb_strtoupper($other->name).', CPF nº '.$other->document;
+                })->join(', ', ' e ');
+
+                $bodyRun->addText($othersList, ['bold' => true]);
+
+                $bodyRun->addText(', conforme procuração expressamente outorgada na ');
+                $bodyRun->addText("Cláusula {$clause} ", ['bold' => true]);
+                $bodyRun->addText('do contrato executado.');
+            } else {
+                $bodyRun->addText('.');
+            }
+
+            $template->setComplexValue("signature_content#{$i}", $bodyRun);
         }
     }
 

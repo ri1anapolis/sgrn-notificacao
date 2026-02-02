@@ -14,6 +14,7 @@ use App\Services\DocumentGenerators\AdversePossessionNotificationPublicDocGenera
 use App\Services\DocumentGenerators\CertificateDocGeneratorFactory;
 use App\Services\DocumentGenerators\EnvelopeDocGenerator;
 use App\Services\DocumentGenerators\NotificationDocGeneratorFactory;
+use App\Traits\HandlesDownloads;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -22,6 +23,8 @@ use Throwable;
 
 class DataProcessingController extends Controller
 {
+    use HandlesDownloads;
+
     public function check(string $protocol): JsonResponse
     {
         $exists = Notification::where('protocol', $protocol)->exists();
@@ -100,7 +103,7 @@ class DataProcessingController extends Controller
 
             $fileName = "Notificacao {$natureName}{$variantSuffix} {$notification->protocol}.docx";
 
-            return response()->download($tempFile, $fileName)->deleteFileAfterSend(true);
+            return $this->downloadFile($tempFile, $fileName);
         } catch (\Exception $e) {
             return back()->withErrors(['geral' => 'Erro ao gerar documento: '.$e->getMessage()]);
         }
@@ -114,7 +117,7 @@ class DataProcessingController extends Controller
             $tempFile = $generator->generate($notification);
             $fileName = "Envelope Notificacao {$notification->protocol}.docx";
 
-            return response()->download($tempFile, $fileName)->deleteFileAfterSend(true);
+            return $this->downloadFile($tempFile, $fileName);
         } catch (\Exception $e) {
             return back()->withErrors(['geral' => 'Erro ao gerar envelope: '.$e->getMessage()]);
         }
@@ -129,7 +132,7 @@ class DataProcessingController extends Controller
             $tempFile = $generator->generate($notification);
             $fileName = "Certidao Notificacao {$notification->protocol}.docx";
 
-            return response()->download($tempFile, $fileName)->deleteFileAfterSend(true);
+            return $this->downloadFile($tempFile, $fileName);
         } catch (\Exception $e) {
             return back()->withErrors(['geral' => 'Erro ao gerar certidao: '.$e->getMessage()]);
         }
@@ -147,7 +150,7 @@ class DataProcessingController extends Controller
             $tempFile = $generator->generate($notification);
             $fileName = "Edital de Notificacao Usucapiao {$notification->protocol}.docx";
 
-            return response()->download($tempFile, $fileName)->deleteFileAfterSend(true);
+            return $this->downloadFile($tempFile, $fileName);
         } catch (\Exception $e) {
             return back()->withErrors(['geral' => 'Erro ao gerar edital: '.$e->getMessage()]);
         }

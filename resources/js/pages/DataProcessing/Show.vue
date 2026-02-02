@@ -174,13 +174,13 @@ const downloadDocument = () => {
         return;
     }
 
-    const url = route('data-processing.notification.download', props.notification.protocol);
+    const url = route('data-processing.notification.download', props.notification.protocol) + `?t=${Date.now()}`;
     window.open(url, '_self');
 };
 
 const downloadNotificationWithVariant = (variant: 'public_entity' | 'private') => {
     showNotificationTypeModal.value = false;
-    const url = route('data-processing.notification.download', props.notification.protocol) + `?variant=${variant}`;
+    const url = route('data-processing.notification.download', props.notification.protocol) + `?variant=${variant}&t=${Date.now()}`;
     window.open(url, '_self');
 };
 
@@ -190,7 +190,7 @@ const downloadEnvelope = () => {
         return;
     }
 
-    const url = route('data-processing.envelope.download', props.notification.protocol);
+    const url = route('data-processing.envelope.download', props.notification.protocol) + `?t=${Date.now()}`;
     window.open(url, '_self');
 };
 
@@ -211,7 +211,7 @@ const downloadCertificate = () => {
         }
     }
 
-    const url = route('data-processing.certificate.download', props.notification.protocol);
+    const url = route('data-processing.certificate.download', props.notification.protocol) + `?t=${Date.now()}`;
     window.open(url, '_self');
 };
 
@@ -221,7 +221,7 @@ const downloadAdversePossessionEdital = () => {
         return;
     }
 
-    const url = route('data-processing.adverse-possession-edital.download', props.notification.protocol);
+    const url = route('data-processing.adverse-possession-edital.download', props.notification.protocol) + `?t=${Date.now()}`;
     window.open(url, '_self');
 };
 

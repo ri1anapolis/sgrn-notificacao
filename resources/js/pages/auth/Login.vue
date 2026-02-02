@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AuthBase from '@/layouts/AuthLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
-import { LoaderCircle } from 'lucide-vue-next';
+import { ArrowBigUp, LoaderCircle } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 defineProps<{
     status?: string;
@@ -18,6 +19,12 @@ const form = useForm({
     password: '',
     remember: false,
 });
+
+const isCapsLockOn = ref(false);
+
+const checkCapsLock = (event: KeyboardEvent) => {
+    isCapsLockOn.value = event.getModifierState('CapsLock');
+};
 
 const submit = () => {
     form.post(route('login'), {
@@ -46,14 +53,25 @@ const submit = () => {
                     <div class="flex items-center justify-between">
                         <Label for="password">Senha</Label>
                     </div>
-                    <Input
-                        id="password"
-                        type="password"
-                        required
-                        autocomplete="current-password"
-                        v-model="form.password"
-                        placeholder="Digite sua senha..."
-                    />
+                    <div class="relative">
+                        <Input
+                            id="password"
+                            type="password"
+                            required
+                            autocomplete="current-password"
+                            v-model="form.password"
+                            placeholder="Digite sua senha..."
+                            @keyup="checkCapsLock"
+                            @keydown="checkCapsLock"
+                        />
+                        <div
+                            v-if="isCapsLockOn"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-amber-500"
+                            title="Caps Lock ativado"
+                        >
+                            <ArrowBigUp class="h-4 w-4 fill-amber-500" />
+                        </div>
+                    </div>
                     <InputError :message="form.errors.password" />
                 </div>
 

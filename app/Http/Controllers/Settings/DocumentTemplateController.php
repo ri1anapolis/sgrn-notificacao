@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Settings;
 use App\Data\DocumentTemplateData;
 use App\Http\Controllers\Controller;
 use App\Models\DocumentTemplate;
+use App\Traits\HandlesDownloads;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -12,6 +13,8 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class DocumentTemplateController extends Controller
 {
+    use HandlesDownloads;
+
     public function index()
     {
         $templates = DocumentTemplate::with('updatedByUser')
@@ -32,7 +35,7 @@ class DocumentTemplateController extends Controller
             abort(404, 'Template não encontrado');
         }
 
-        return response()->download($path, $template->slug.'.docx');
+        return $this->downloadTemplate($path, $template->slug.'.docx');
     }
 
     public function downloadOriginal(DocumentTemplate $template): BinaryFileResponse
@@ -43,7 +46,7 @@ class DocumentTemplateController extends Controller
             abort(404, 'Template original não encontrado');
         }
 
-        return response()->download($path, $template->slug.'_original.docx');
+        return $this->downloadTemplate($path, $template->slug.'_original.docx');
     }
 
     public function update(Request $request, DocumentTemplate $template)

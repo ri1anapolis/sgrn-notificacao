@@ -41,7 +41,7 @@ watch(
     (message) => {
         if (message) {
             toast.success(message as string, {
-                timeout: 3000,
+                timeout: 1000,
             });
         }
     },
@@ -100,7 +100,7 @@ const submit = () => {
         form.put(route('users.update', editingUserId.value), {
             onSuccess: () => {
                 closeForm();
-                toast.success('Usuário atualizado com sucesso!', { timeout: 3000 });
+                toast.success('Usuário atualizado com sucesso!', { timeout: 1000 });
             },
         });
     } else {

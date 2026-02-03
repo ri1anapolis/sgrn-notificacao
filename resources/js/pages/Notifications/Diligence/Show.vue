@@ -138,7 +138,7 @@ const saveDiligence = () => {
                     toast.success('Diligência atualizada com sucesso!');
                 },
                 onError: () => {
-                    toast.error('Erro ao atualizar a diligência.');
+                    toast.error('Erro ao atualizar a diligência.', { timeout: 3000 });
                 },
             },
         );
@@ -155,7 +155,7 @@ const saveDiligence = () => {
                     toast.success('Notificação registrada com sucesso!');
                 },
                 onError: () => {
-                    toast.error('Erro ao salvar a diligência.');
+                    toast.error('Erro ao salvar a diligência.', { timeout: 3000 });
                 },
             },
         );

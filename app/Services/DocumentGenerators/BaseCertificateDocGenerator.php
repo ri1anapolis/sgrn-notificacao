@@ -11,6 +11,7 @@ use PhpOffice\PhpWord\TemplateProcessor;
 abstract class BaseCertificateDocGenerator implements DocumentGeneratorInterface
 {
     use DocumentFormatterTrait;
+    use Traits\NatureFieldMapperTrait;
 
     /**
      * Get the path to the template file.
@@ -74,14 +75,13 @@ abstract class BaseCertificateDocGenerator implements DocumentGeneratorInterface
 
         $template->setValue('nature', $this->getNatureName($notification->notifiable_type));
         $template->setValue('property_notified', $this->getPropertyAddress($data));
-        $template->setValue('property_registry', $data->guarantee_property_registration ?? $data->rectifying_property_registration ?? '');
-
+        $template->setValue('property_registry', $this->getPropertyRegistry($data, $notification->notifiable_type));
         $template->setValue('registry_place', $this->getRegistryOffice($data, $notification->notifiable_type));
-        $template->setValue('contract_number', $data->contract_number ?? '');
-        $template->setValue('act_registry', $data->contract_registration_act ?? '');
+        $template->setValue('contract_number', $this->getContractNumber($data, $notification->notifiable_type));
+        $template->setValue('act_registry', $this->getContractRegistrationAct($data, $notification->notifiable_type));
 
-        $this->formatCurrency($template, 'value_debt', $data->total_amount_debt ?? 0);
-        $this->formatDateShort($template, 'debt_date', $data->debt_position_date ?? null);
+        $this->formatCurrency($template, 'value_debt', $this->getTotalAmountDebt($data, $notification->notifiable_type));
+        $this->formatDateShort($template, 'debt_date', $this->getDebtPositionDate($data, $notification->notifiable_type));
 
         $creditor = $data->credor ?? $data->creditor ?? '';
         $cnpj = '';
@@ -134,7 +134,8 @@ abstract class BaseCertificateDocGenerator implements DocumentGeneratorInterface
                     'address' => $address->address,
                     'date' => $diligence->date ? $diligence->date->format('d/m/Y') : '',
                     'hour' => $diligence->date ? $diligence->date->format('H:i') : '',
-                    'result' => $diligence->diligenceResult->description ?? '',
+                    'result' => preg_replace('/^\[.*?\]\s*/', '', $diligence->diligenceResult->description ?? ''),
+                    'observations' => $diligence->observations,
                     'addr_index' => $addrIndex,
                 ];
             }
@@ -170,10 +171,16 @@ abstract class BaseCertificateDocGenerator implements DocumentGeneratorInterface
                 $adverb = 'Também em';
             }
 
-            $visitParts[] = "{$adverb} {$textNum} ao {$visit['address']}, realizada em {$visit['date']} às {$visit['hour']} e o resultado foi de {$visit['result']}";
+            $visitText = "{$adverb} {$textNum} ao {$visit['address']}, realizada em {$visit['date']} às {$visit['hour']}{$visit['result']}";
+
+            if (! empty($visit['observations'])) {
+                $visitText .= " (Observação: {$visit['observations']})";
+            }
+
+            $visitParts[] = $visitText;
         }
 
-        $visitsText = implode(' ', $visitParts);
+        $visitsText = implode("\n\n", $visitParts);
         $template->setValue('visits_list', $visitsText);
     }
 
@@ -201,51 +208,6 @@ abstract class BaseCertificateDocGenerator implements DocumentGeneratorInterface
             'verb_debtors' => $isMale ? 'o devedor está' : 'a devedora está',
             'verb_debtor_article' => $isMale ? 'o devedor' : 'a devedora',
         ];
-    }
-
-    protected function getNatureName(string $type): string
-    {
-        return match (class_basename($type)) {
-            'AlienationRealEstate' => 'Alienação Fiduciária de Bem Imóvel',
-            'AlienationMovableProperty' => 'Alienação Fiduciária de Bem Móvel',
-            'PurchaseAndSaleSubdivision', 'PurchaseAndSaleIncorporation' => 'Compromisso de Compra e Venda',
-            'RetificationArea' => 'Retificação de Área',
-            'Adjudication' => 'Adjudicação',
-            'AdversePossession' => 'Usucapião',
-            default => 'Notificação',
-        };
-    }
-
-    protected function getPropertyAddress($data): string
-    {
-        return $data->guarantee_property_address ??
-               $data->guarantee_movable_property_description ??
-               $data->committed_property_identification ??
-               $data->rectifying_property_identification ??
-               $data->adjudicated_property_identification ??
-               $data->adverse_possession_property_identification ??
-               '';
-    }
-
-    protected function getRegistryOffice($data, string $type): string
-    {
-        if (! $data) {
-            return '';
-        }
-
-        return match (class_basename($type)) {
-            'AlienationRealEstate',
-            'PurchaseAndSaleSubdivision',
-            'PurchaseAndSaleIncorporation',
-            'Other' => $data->real_estate_registry_location ?? '',
-
-            'AlienationMovableProperty' => $data->contract_registry_office ?? '',
-            'AdversePossession' => $data->adverse_possession_property_registry_office ?? '',
-            'Adjudication' => $data->adjudicated_property_registry_office ?? '',
-            'RetificationArea' => $data->rectifying_property_registry_office ?? '',
-
-            default => '',
-        };
     }
 
     /**

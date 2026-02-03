@@ -241,7 +241,7 @@ class AlienationRealEstateDocGenerator implements DocumentGeneratorInterface
 
                 $bodyRun->addText(', conforme procuração expressamente outorgada na ');
                 $bodyRun->addText("Cláusula {$clause} ", ['bold' => true]);
-                $bodyRun->addText('do contrato executado.');
+                $bodyRun->addText('do contrato ora executado.');
             } else {
                 $bodyRun->addText('.');
             }
@@ -258,7 +258,7 @@ class AlienationRealEstateDocGenerator implements DocumentGeneratorInterface
             $name = mb_strtoupper($person->name);
             $doc = $person->document;
 
-            return "{$name}, inscrito no CPF nº {$doc}";
+            return "{$name}, CPF nº {$doc}";
         })->join(', ', ' e ');
 
         $template->setValue('text_list_edital', $textList);

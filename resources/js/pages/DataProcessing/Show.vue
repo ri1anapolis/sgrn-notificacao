@@ -3,7 +3,7 @@
 import { useToast } from 'vue-toastification';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, onMounted } from 'vue';
 import DataProcessingHeader from './components/DataProcessingHeader.vue';
 import NotificationForm from './components/NotificationForm.vue';
 import NotificationTypeModal from './components/NotificationTypeModal.vue';
@@ -53,6 +53,11 @@ const form = useForm({
     notified_people: [...(props.notification.notified_people || [])],
     addresses: [...(props.notification.addresses || [])],
     notifiable: props.notification.notifiable ? { ...props.notification.notifiable } : null,
+});
+onMounted(() => {
+    setTimeout(() => {
+        form.defaults();
+    }, 300);
 });
 
 watch(selectedNature, (newNature, oldNature) => {
@@ -137,7 +142,10 @@ const submit = () => {
         preserveScroll: true,
 
         onSuccess: () => {
-            toast.success("Alterações Salvas Com Sucesso!");
+            setTimeout(() => {
+                form.defaults();
+            }, 100);
+            toast.success("Alterações Salvas Com Sucesso!", { timeout: 1500 });
         },
 
         onError: (errors) => {
@@ -146,18 +154,18 @@ const submit = () => {
 
             const hasAddressError = Object.keys(errors).some(key => key.startsWith('addresses'));
             if (hasAddressError) {
-                toast.error("Erro ao salvar. O campo de endereço não foi preenchido.");
+                toast.error("Erro ao salvar. O campo de endereço não foi preenchido.", { timeout: 2000 });
                 specificErrorShown = true;
             }
 
             const hasPeopleError = Object.keys(errors).some(key => key.startsWith('notified_people'));
             if (hasPeopleError) {
-                toast.error("Erro ao salvar. O campo do Notificado não foi preenchido.");
+                toast.error("Erro ao salvar. O campo do Notificado não foi preenchido.", { timeout: 2000 });
                 specificErrorShown = true;
             }
 
             if (!specificErrorShown) {
-                toast.error("Erro ao salvar. Verifique os campos.");
+                toast.error("Erro ao salvar. Verifique os campos.", { timeout: 2000 });
             }
         }
     });
@@ -165,7 +173,7 @@ const submit = () => {
 
 const downloadDocument = () => {
     if (form.isDirty) {
-        alert('Salve as alterações antes de gerar o documento!');
+        toast.warning('Salve as alterações antes de gerar o documento!', { timeout: 2000 });
         return;
     }
 
@@ -186,7 +194,7 @@ const downloadNotificationWithVariant = (variant: 'public_entity' | 'private') =
 
 const downloadEnvelope = () => {
     if (form.isDirty) {
-        alert('Salve as alterações antes de gerar o documento!');
+        toast.warning('Salve as alterações antes de gerar o documento!', { timeout: 2000 });
         return;
     }
 
@@ -196,15 +204,15 @@ const downloadEnvelope = () => {
 
 const downloadCertificate = () => {
     if (form.isDirty) {
-        alert('Salve as alterações antes de gerar o documento!');
+        toast.warning('Salve as alterações antes de gerar o documento!', { timeout: 2000 });
         return;
     }
 
     if (!props.notification.can_download_certificate) {
-        toast.info("A certidão só pode ser emitida se houver uma notificação de sucesso ou se todos os endereços tiverem 3 visitas realizadas.");
+        toast.info("A certidão só pode ser emitida se houver uma notificação de sucesso ou se todos os endereços tiverem 3 visitas realizadas.", { timeout: 2500 });
         return;
     }
- 
+
     if (!props.notification.has_success_diligence && !props.notification.has_public_notice) {
         if (!confirm('A notificação não possui dados de edital, deseja baixar o documento ainda sim?')) {
             return;
@@ -217,7 +225,7 @@ const downloadCertificate = () => {
 
 const downloadAdversePossessionEdital = () => {
     if (form.isDirty) {
-        alert('Salve as alterações antes de gerar o documento!');
+        toast.warning('Salve as alterações antes de gerar o documento!', { timeout: 2000 });
         return;
     }
 
@@ -254,11 +262,10 @@ const downloadAdversePossessionEdital = () => {
                 Baixar Envelope
             </button>
 
-            <button @click="downloadCertificate"
-                :class="[
-                    'rounded-md px-6 py-2.5 text-sm font-semibold shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 cursor-pointer hover:scale-105 duration-100',
-                    notification.can_download_certificate ? 'bg-emerald-600 hover:bg-emerald-800 text-white' : 'bg-zinc-400 text-zinc-100'
-                ]">
+            <button @click="downloadCertificate" :class="[
+                'rounded-md px-6 py-2.5 text-sm font-semibold shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 cursor-pointer hover:scale-105 duration-100',
+                notification.can_download_certificate ? 'bg-emerald-600 hover:bg-emerald-800 text-white' : 'bg-zinc-400 text-zinc-100'
+            ]">
                 Baixar Certidão
             </button>
 
@@ -279,34 +286,16 @@ const downloadAdversePossessionEdital = () => {
             </button>
         </div>
 
-        <PublicNoticeModal
-            :show="showPublicNoticeModal"
-            :notification-protocol="notification.protocol"
-            :public-notice="notification.public_notice"
-            @close="showPublicNoticeModal = false"
-        />
+        <PublicNoticeModal :show="showPublicNoticeModal" :notification-protocol="notification.protocol"
+            :public-notice="notification.public_notice" @close="showPublicNoticeModal = false" />
 
-        <DigitalContactSelectModal
-            :show="showDigitalContactSelectModal"
-            :notified-people="form.notified_people"
-            @close="showDigitalContactSelectModal = false"
-            @select="onPersonSelected"
-        />
+        <DigitalContactSelectModal :show="showDigitalContactSelectModal" :notified-people="form.notified_people"
+            @close="showDigitalContactSelectModal = false" @select="onPersonSelected" />
 
-        <DigitalContactFormModal
-            :show="showDigitalContactFormModal"
-            :notification-protocol="notification.protocol"
-            :person="selectedPerson"
-            @close="closeAllModals"
-            @back="onBackToPersonSelect"
-        />
+        <DigitalContactFormModal :show="showDigitalContactFormModal" :notification-protocol="notification.protocol"
+            :person="selectedPerson" @close="closeAllModals" @back="onBackToPersonSelect" />
 
-        <NotificationTypeModal
-            :show="showNotificationTypeModal"
-            :notification-protocol="notification.protocol"
-            @close="showNotificationTypeModal = false"
-            @select="downloadNotificationWithVariant"
-        />
+        <NotificationTypeModal :show="showNotificationTypeModal" :notification-protocol="notification.protocol"
+            @close="showNotificationTypeModal = false" @select="downloadNotificationWithVariant" />
     </AppLayout>
 </template>
-

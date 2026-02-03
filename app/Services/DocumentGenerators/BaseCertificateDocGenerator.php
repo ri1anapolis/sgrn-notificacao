@@ -106,7 +106,7 @@ abstract class BaseCertificateDocGenerator implements DocumentGeneratorInterface
 
         $personParts = [];
         foreach ($people as $person) {
-            $personParts[] = mb_strtoupper($person->name).', inscrito no CPF n˚ '.$person->document;
+            $personParts[] = mb_strtoupper($person->name).', CPF n˚ '.$person->document;
         }
 
         if (count($personParts) > 1) {
@@ -170,7 +170,7 @@ abstract class BaseCertificateDocGenerator implements DocumentGeneratorInterface
                 $adverb = 'Também em';
             }
 
-            $visitParts[] = "{$adverb} {$textNum} ao {$visit['address']}, Anápolis/GO, realizada em {$visit['date']} às {$visit['hour']} e o resultado foi de {$visit['result']}";
+            $visitParts[] = "{$adverb} {$textNum} ao {$visit['address']}, realizada em {$visit['date']} às {$visit['hour']} e o resultado foi de {$visit['result']}";
         }
 
         $visitsText = implode(' ', $visitParts);

@@ -32,7 +32,7 @@ watch(
     () => page.props.flash?.success,
     (message) => {
         if (message) {
-            toast.success(message as string, { timeout: 3000 });
+            toast.success(message as string, { timeout: 1000 });
         }
     },
     { immediate: true },

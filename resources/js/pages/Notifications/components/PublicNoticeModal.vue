@@ -99,7 +99,7 @@ const removePublication = (index: number) => {
 
 const submit = () => {
     if (!isFormValid.value) {
-        toast.error('Preencha todos os campos obrigatórios.');
+        toast.error('Preencha todos os campos obrigatórios.', { timeout: 3000 });
         return;
     }
 
@@ -112,7 +112,7 @@ const submit = () => {
             emit('close');
         },
         onError: () => {
-            toast.error('Erro ao salvar os dados. Verifique os campos.');
+            toast.error('Erro ao salvar os dados. Verifique os campos.', { timeout: 3000 });
         },
     });
 };

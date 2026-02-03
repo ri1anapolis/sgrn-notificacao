@@ -65,7 +65,7 @@ const submit = () => {
             emit('close');
         },
         onError: () => {
-            toast.error('Erro ao registrar contato. Verifique os campos.');
+            toast.error('Erro ao registrar contato. Verifique os campos.', { timeout: 3000 });
         },
     });
 };

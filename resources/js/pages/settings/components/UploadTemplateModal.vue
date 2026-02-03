@@ -45,7 +45,7 @@ const submit = () => {
             isUploading.value = false;
         },
         onError: () => {
-            toast.error('Erro ao enviar o arquivo. Verifique se é um .docx válido.');
+            toast.error('Erro ao enviar o arquivo. Verifique se é um .docx válido.', { timeout: 3000 });
             isUploading.value = false;
         },
     });

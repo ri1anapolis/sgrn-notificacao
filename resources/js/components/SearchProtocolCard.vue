@@ -62,7 +62,7 @@ const submit = async () => {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
 
                     if (errors.geral) {
-                        toast.error(errors.geral, { timeout: 4000 });
+                        toast.error(errors.geral, { timeout: 3000 });
                     } else {
                         toast.error('Ocorreu um erro inesperado..', { timeout: 3000 });
                     }

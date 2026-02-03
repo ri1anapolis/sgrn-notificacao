@@ -12,7 +12,7 @@ const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 const toastOptions: PluginOptions = {
     position: POSITION.TOP_RIGHT,
-    timeout: 5000,
+    timeout: 1000,
     closeOnClick: true,
     pauseOnFocusLoss: true,
     pauseOnHover: true,

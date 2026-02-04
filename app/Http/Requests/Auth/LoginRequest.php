@@ -33,6 +33,7 @@ class LoginRequest extends FormRequest
         return [
             'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
+            'remember' => ['boolean'],
         ];
     }
 
@@ -56,7 +57,7 @@ class LoginRequest extends FormRequest
             $user->temporary_password &&
             Hash::check($this->password, $user->temporary_password)
         ) {
-            Auth::login($user);
+            Auth::login($user, $this->boolean('remember'));
 
             return;
         }

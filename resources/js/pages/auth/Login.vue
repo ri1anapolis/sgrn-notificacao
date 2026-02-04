@@ -64,22 +64,23 @@ const submit = () => {
                             @keyup="checkCapsLock"
                             @keydown="checkCapsLock"
                         />
-                        <div
-                            v-if="isCapsLockOn"
-                            class="absolute right-3 top-1/2 -translate-y-1/2 text-amber-500"
-                            title="Caps Lock ativado"
-                        >
+                        <div v-if="isCapsLockOn" class="absolute top-1/2 right-3 -translate-y-1/2 text-amber-500" title="Caps Lock ativado">
                             <ArrowBigUp class="h-4 w-4 fill-amber-500" />
                         </div>
                     </div>
                     <InputError :message="form.errors.password" />
                 </div>
 
-                <div class="flex items-center justify-between">
-                    <Label for="remember" class="flex items-center space-x-3">
-                        <Checkbox id="remember" v-model="form.remember" />
-                        <span>Lembrar</span>
-                    </Label>
+                <div class="flex items-center gap-3 text-sm">
+                    <div class="flex items-center gap-2">
+                        <Checkbox id="remember" :checked="form.remember" @update:checked="(val: boolean) => (form.remember = val)" />
+                        <Label
+                            for="remember"
+                            class="cursor-pointer text-sm leading-none font-medium select-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                            Lembrar
+                        </Label>
+                    </div>
                 </div>
 
                 <Button type="submit" class="mt-4 w-full" :disabled="form.processing">

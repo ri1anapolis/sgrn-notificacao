@@ -23,8 +23,14 @@ const props = defineProps<{
 
 const tabs = ref(['Visita 01', 'Visita 02', 'Visita 03']);
 const diligenceCount = computed(() => props.address.diligences.length);
-const initialTabIndex = Math.min(diligenceCount.value, tabs.value.length - 1);
-const activeTab = ref(tabs.value[initialTabIndex]);
+const initialTabIndex = computed(() => {
+    if (props.notification.is_closed) {
+        return Math.max(0, diligenceCount.value - 1);
+    }
+
+    return Math.min(diligenceCount.value, tabs.value.length - 1);
+});
+const activeTab = ref(tabs.value[initialTabIndex.value]);
 const toast = useToast();
 
 const isEditing = ref(false);
@@ -75,6 +81,15 @@ const selectedResultDescription = computed(() => {
 });
 
 const updateTab = (tab: string) => {
+    const targetVisitNumber = parseInt(tab.replace('Visita ', ''), 10);
+
+    const isVisitMade = props.address.diligences.some(d => d.visit_number === targetVisitNumber);
+
+    if (props.notification.is_closed && !isVisitMade) {
+        toast.info("Não é possível realizar novas visitas pois a notificação já foi encerrada.", {timeout: 3000});
+        return;
+    }
+
     activeTab.value = tab;
     isEditing.value = false;
     form.reset('diligence_result_id', 'observations', 'date');
@@ -175,7 +190,7 @@ const saveDiligence = () => {
         </div>
 
         <div class="mt-9 mb-3">
-            <TabNavigation :tabs="tabs" :diligences-count="diligenceCount" :active-tab="activeTab"
+            <TabNavigation :tabs="tabs" :diligences-count="diligenceCount" :active-tab="activeTab" :is-closed="notification.is_closed"
                 @tab-change="updateTab" />
         </div>
 

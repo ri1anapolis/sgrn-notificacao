@@ -39,6 +39,7 @@ class NotificationData extends Data
         public bool $can_download_certificate = false,
         public bool $has_success_diligence = false,
         public bool $has_public_notice = false,
+        public bool $is_closed = false,
     ) {}
 
     public static function fromModel(Notification $notification): self
@@ -94,6 +95,7 @@ class NotificationData extends Data
             can_download_certificate: $canDownloadCertificate,
             has_success_diligence: $hasSuccessDiligence,
             has_public_notice: (bool) $notification->publicNotice,
+            is_closed: $notification->is_closed ?? false,
         );
     }
 }

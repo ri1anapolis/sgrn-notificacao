@@ -114,6 +114,7 @@ digital_contacts: any | null;
 can_download_certificate: boolean;
 has_success_diligence: boolean;
 has_public_notice: boolean;
+is_closed: boolean;
 };
 export type NotifiedPersonData = {
 id: number;

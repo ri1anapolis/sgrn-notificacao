@@ -15,6 +15,8 @@ Route::bind('notification', function ($value, RouteObject $route) {
 
     $notificationErrorRoutes = [
         'notifications.show',
+        'notifications.close',
+        'notifications.reopen',
         'notifications.diligence.show',
         'notifications.diligence.store',
         'notifications.public-notice.store',
@@ -57,6 +59,12 @@ Route::middleware(['auth', 'verified'])
     ->group(function () {
         Route::get('/', [NotificationController::class, 'show'])
             ->name('notifications.show');
+
+        Route::post('/close', [NotificationController::class, 'close'])
+            ->name('notifications.close');
+
+        Route::post('/reopen', [NotificationController::class, 'reopen'])
+            ->name('notifications.reopen');
 
         Route::get('/diligence/{address}', [NotificationDiligenceController::class, 'show'])
             ->name('notifications.diligence.show');

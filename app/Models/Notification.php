@@ -15,6 +15,7 @@ class Notification extends Model
 
     protected $casts = [
         'status' => NotificationStatus::class,
+        'is_closed' => 'boolean',
     ];
 
     public function notifiedPeople(): HasMany

@@ -137,7 +137,16 @@ abstract class BaseCertificateDocGenerator implements DocumentGeneratorInterface
                     'result' => preg_replace('/^\[.*?\]\s*/', '', $diligence->diligenceResult->description ?? ''),
                     'observations' => $diligence->observations,
                     'addr_index' => $addrIndex,
+                    'is_success' => $diligence->diligenceResult?->isSuccess() ?? false,
                 ];
+            }
+        }
+
+        if ($notification->is_closed) {
+            $successVisits = array_filter($allVisits, fn ($v) => $v['is_success']);
+            if (! empty($successVisits)) {
+                $lastSuccess = end($successVisits);
+                $allVisits = [$lastSuccess];
             }
         }
 
@@ -156,12 +165,14 @@ abstract class BaseCertificateDocGenerator implements DocumentGeneratorInterface
         foreach ($allVisits as $index => $visit) {
             $num = $visit['visit_number'];
 
-            $textNum = match ($num) {
-                1 => ($maxVisit > 1) ? 'primeira visita' : 'visita única',
-                2 => 'segunda visita',
-                3 => 'terceira visita',
-                default => "{$num}ª visita",
-            };
+            $textNum = $notification->is_closed
+                ? 'primeira visita'
+                : match ($num) {
+                    1 => ($maxVisit > 1) ? 'primeira visita' : 'visita única',
+                    2 => 'segunda visita',
+                    3 => 'terceira visita',
+                    default => "{$num}ª visita",
+                };
 
             if ($index === 0) {
                 $adverb = 'Em';

@@ -12,6 +12,7 @@ use App\Models\Diligence;
 use App\Models\DiligenceResult;
 use App\Models\Notification;
 use App\Service\DiligenceHistoryService;
+use Carbon\Carbon;
 use Inertia\Inertia;
 
 class NotificationDiligenceController extends Controller
@@ -46,12 +47,14 @@ class NotificationDiligenceController extends Controller
     {
         $validated = $request->validated();
 
+        $localDate = Carbon::parse($validated['date'])->setTimezone('America/Sao_Paulo');
+
         $address->diligences()->create([
             'user_id' => request()->user()->id,
             'visit_number' => $validated['visit_number'],
             'diligence_result_id' => $validated['diligence_result_id'],
             'observations' => $validated['observations'],
-            'date' => $validated['date'],
+            'date' => $localDate,
         ]);
 
         return redirect()->route('notifications.diligence.show', [

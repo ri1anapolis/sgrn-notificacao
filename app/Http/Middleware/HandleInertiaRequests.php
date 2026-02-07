@@ -52,6 +52,8 @@ class HandleInertiaRequests extends Middleware
             ],
             'flash' => [
                 'temporary_code' => $request->session()->get('temporary_code'),
+                'reset_email' => fn () => $request->session()->get('reset_email'),
+                'reset_mode' => fn () => $request->session()->get('reset_mode'),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];

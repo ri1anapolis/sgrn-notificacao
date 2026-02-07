@@ -19,9 +19,26 @@ class UserController extends Controller
     {
         $users = User::orderBy('name')->get();
 
+        $currentUserRole = auth()->user()->role;
+        $roleValue = $currentUserRole instanceof UserRole ? $currentUserRole->value : $currentUserRole;
+
+        $roles = match ($roleValue) {
+            UserRole::SuperAdmin->value => [
+                UserRole::SuperAdmin,
+                UserRole::Admin,
+                UserRole::Employee,
+            ],
+            UserRole::Admin->value => [
+                UserRole::SuperAdmin,
+                UserRole::Admin,
+                UserRole::Employee,
+            ],
+            default => [],
+        };
+
         return Inertia::render('Users/Index', [
             'users' => UserData::collect($users),
-            'roles' => UserRole::cases(),
+            'roles' => array_map(fn ($role) => $role->value, $roles),
         ]);
     }
 
@@ -63,6 +80,25 @@ class UserController extends Controller
         $user->delete();
 
         return redirect()->route('users.index');
+    }
+
+    public function resetPassword(User $user)
+    {
+        $temporaryCode = Str::random(8);
+
+        $user->update([
+            'password' => null,
+            'temporary_password' => Hash::make($temporaryCode),
+            'must_change_password' => true,
+        ]);
+
+        return redirect()
+            ->route('users.index')
+            ->with([
+                'temporary_code' => $temporaryCode,
+                'reset_email' => $user->email,
+                'reset_mode' => true,
+            ]);
     }
 
     public function changePasswordView(User $user)

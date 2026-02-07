@@ -14,7 +14,7 @@ const userRole = computed(() => page.props.auth.user?.role);
     <AppLayout link-button="logout" :is-dashboard="true" text-button="Sair" page-title="Notificação Certa - Sistema Extrajudicial" method="post">
         <div class="m-auto mb-5 flex max-w-7xl flex-wrap justify-center gap-12">
             <SearchProtocolCard
-                v-if="userRole == 'admin'"
+                v-if="userRole === 'admin' || userRole === 'super-admin'"
                 image-url="/images/Card-Tratamento-de-Dados.jpeg"
                 alt-name="Ilustração de um funcionário em uma mesa, digitando em um notebook para o tratamento de dados."
                 route-name="data-processing.show"

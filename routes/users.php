@@ -15,6 +15,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('users.destroy');
     });
 
+    Route::middleware(['super-admin'])->group(function () {
+        Route::post('/users/{user}/reset-password', [UserController::class, 'resetPassword'])
+            ->name('users.reset-password');
+    });
+
     Route::get('/users', [UserController::class, 'index'])
         ->name('users.index');
 

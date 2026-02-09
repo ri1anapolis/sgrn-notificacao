@@ -208,5 +208,5 @@ export type DiligenceResult = 'not_found';
 export type NotificationNature = 'Alienação Fiduciária de Bem Imóvel' | 'Alienação Fiduciária de Bem Móvel' | 'Compromisso de Compra e Venda Incorporação' | 'Compromisso de Compra e Venda Loteamento' | 'Retificação de Área' | 'Usucapião' | 'Adjudicação' | 'Diversos';
 export type NotificationStatus = 'completed' | 'in_progress';
 export type NotifiedPersonGender = 'masculine' | 'feminine';
-export type UserRole = 'admin' | 'employee';
+export type UserRole = 'super-admin' | 'admin' | 'employee';
 }

@@ -27,6 +27,8 @@ export type AppPageProps<T extends Record<string, unknown> = Record<string, unkn
         success?: string;
         error?: string | null;
         temporary_code?: string;
+        reset_email?: string;
+        reset_mode?: string;
     };
 };
 

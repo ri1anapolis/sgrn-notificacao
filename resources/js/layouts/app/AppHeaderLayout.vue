@@ -3,7 +3,7 @@ import AppLogoIcon from '@/components/AppLogoIcon.vue';
 import IconButton from '@/components/IconButton.vue';
 import TitleHeader from '@/components/TitleHeader.vue';
 import { usePage } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import MobileMenu from './components/MobileMenu.vue';
 
 defineProps<{
@@ -16,7 +16,7 @@ defineProps<{
 }>();
 
 const page = usePage();
-const isAdmin = computed(() => page.props.auth.user?.role === 'admin');
+const isAdmin = computed(() => page.props.auth.user?.role === 'admin' || page.props.auth.user?.role === 'super-admin');
 </script>
 
 <template>
@@ -32,10 +32,10 @@ const isAdmin = computed(() => page.props.auth.user?.role === 'admin');
 
             <div class="col-span-3 flex items-center justify-end md:justify-center">
                 <template v-if="isDashboard">
-                    <div class="hidden lg:flex items-center gap-3">
-                        <IconButton v-if="isAdmin" text="Documentos" link="templates.index"/>
-                        <IconButton v-if="isAdmin" text="Diligências" link="diligence-results.index"/>
-                        <IconButton v-if="isAdmin" text="Usuários" link="users.index" />
+                    <div class="hidden items-center gap-3 lg:flex">
+                        <IconButton v-if="isAdmin" text="Documentos" link="templates.index" />
+                        <IconButton v-if="isAdmin" text="Diligências" link="diligence-results.index" />
+                        <IconButton text="Usuários" link="users.index" />
                         <IconButton :text="textButton" :link="linkButton" :method="method" :has-parameter="hasParameter" icon="logout" />
                     </div>
 

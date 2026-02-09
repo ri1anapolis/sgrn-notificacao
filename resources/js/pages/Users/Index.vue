@@ -5,6 +5,7 @@ import { computed, ref, watch } from 'vue';
 import { useToast } from 'vue-toastification';
 import DeleteUserModal from './components/DeleteUserModal.vue';
 import FirstAccessModal from './components/FirstAccessModal.vue';
+import ResetPasswordModal from './components/ResetPasswordModal.vue';
 
 const props = defineProps<{
     users: App.Data.UserData[];
@@ -18,11 +19,12 @@ const showFirstAccessModal = ref(false);
 const temporaryCode = ref<string | null>(null);
 const createdUserEmail = ref<string>('');
 
+const showResetPasswordModal = ref(false);
 const showDeleteModal = ref(false);
 const userToDelete = ref<App.Data.UserData | null>(null);
 
 const isAdmin = computed(() => {
-    return page.props.auth.user.role === 'admin';
+    return page.props.auth.user.role === 'admin' || page.props.auth.user.role === 'super-admin';
 });
 
 watch(
@@ -30,7 +32,16 @@ watch(
     (code) => {
         if (code) {
             temporaryCode.value = code as string;
-            showFirstAccessModal.value = true;
+            createdUserEmail.value = page.props.flash?.reset_email ?? '';
+
+            showResetPasswordModal.value = false;
+            showFirstAccessModal.value = false;
+
+            if (page.props.flash?.reset_mode) {
+                showResetPasswordModal.value = true;
+            } else {
+                showFirstAccessModal.value = true;
+            }
         }
     },
     { immediate: true },
@@ -49,6 +60,7 @@ watch(
 );
 
 const isFormOpen = ref(false);
+const resetMode = ref(false);
 const editingUserId = ref<number | null>(null);
 
 const form = useForm({
@@ -59,10 +71,20 @@ const form = useForm({
 
 const isEditing = computed(() => editingUserId.value !== null);
 
-const roleOptions = [
-    { id: 'admin', description: 'Administrador' },
-    { id: 'employee', description: 'Funcionário / Colaborador' },
-];
+const roleOptions = computed(() => {
+    const labels: Record<string, string> = {
+        'super-admin': 'Super Administrador',
+        admin: 'Administrador',
+        employee: 'Funcionário / Colaborador',
+    };
+
+    if (!props.roles || props.roles.length === 0) return [];
+
+    return props.roles.map((role) => ({
+        id: role,
+        description: labels[role] || role,
+    }));
+});
 
 const openCreate = () => {
     editingUserId.value = null;
@@ -222,7 +244,7 @@ const submit = () => {
                             <td class="p-4">
                                 <span
                                     class="rounded px-2 py-1 text-xs font-bold"
-                                    :class="user.role === 'admin' ? 'bg-yellow-600/20 text-yellow-500' : 'bg-blue-600/20 text-blue-400'"
+                                    :class="isAdmin ? 'bg-yellow-600/20 text-yellow-500' : 'bg-blue-600/20 text-blue-400'"
                                 >
                                     {{ user.role.toUpperCase() }}
                                 </span>
@@ -239,7 +261,18 @@ const submit = () => {
 
                                 <template v-if="isAdmin">
                                     <button @click="openEdit(user)" class="font-semibold text-yellow-600 hover:text-yellow-500">Editar</button>
+
                                     <button @click="openDelete(user)" class="font-semibold text-red-500 hover:text-red-400">Excluir</button>
+
+                                    <Link
+                                        v-if="page.props.auth.user.role === 'super-admin' && !isCurrentUser(user.id)"
+                                        :href="route('users.reset-password', user.id)"
+                                        method="post"
+                                        as="button"
+                                        class="font-semibold text-purple-400 hover:text-purple-300"
+                                    >
+                                        Resetar Senha
+                                    </Link>
                                 </template>
                             </td>
                         </tr>
@@ -253,6 +286,13 @@ const submit = () => {
             :temporary-code="temporaryCode!"
             :email="createdUserEmail"
             @close="showFirstAccessModal = false"
+        />
+
+        <ResetPasswordModal
+            :show="showResetPasswordModal"
+            :temporary-code="temporaryCode ?? ''"
+            :email="createdUserEmail"
+            @close="showResetPasswordModal = false"
         />
 
         <DeleteUserModal :show="showDeleteModal" :user="userToDelete" @close="showDeleteModal = false" />

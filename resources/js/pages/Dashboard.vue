@@ -23,7 +23,7 @@ const userRole = computed(() => page.props.auth.user?.role);
             />
 
             <SearchProtocolCard
-                image-url="/images/Card-Fase-de-Notificação.png"
+                image-url="/images/Card-Fase-de-Notificacao.png"
                 alt-name="Ilustração de um notificador ao lado de sua motocicleta, segurando uma prancheta para a fase de notificação."
                 route-name="notifications.show"
                 param-name="notification"

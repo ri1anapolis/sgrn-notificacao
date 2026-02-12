@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   db:
     image: postgres:16
@@ -13,6 +11,45 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - sgrn_network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        user: sgrn
+        uid: 1000
+    container_name: sgrn_app
+    restart: unless-stopped
+    volumes:
+      - .:/var/www
+      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+    networks:
+      - sgrn_network
+
+  nginx:
+    image: nginx:alpine
+    container_name: sgrn_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - sgrn_network
+
+networks:
+  sgrn_network:
+    driver: bridge
 
 volumes:
   postgres_data:

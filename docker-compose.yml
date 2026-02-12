@@ -38,7 +38,7 @@ services:
     container_name: sgrn_nginx
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "8401:80"
     volumes:
       - .:/var/www
       - ./docker/nginx/:/etc/nginx/conf.d/

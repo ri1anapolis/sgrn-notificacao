@@ -42,13 +42,11 @@ RUN composer install --no-scripts --no-autoloader \
 
 COPY . .
 
+RUN chown -R $user:www-data /var/www
+
 RUN composer dump-autoload --optimize
-
 RUN npm run build
-
 RUN rm -rf node_modules
-
-RUN chown -R $user:www-data /var/www/storage /var/www/bootstrap/cache
 
 USER $user
 

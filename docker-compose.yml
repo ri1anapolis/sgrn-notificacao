@@ -39,8 +39,7 @@ services:
 
     container_name: sgrn_nginx
     restart: unless-stopped
-    ports:
-      - "8401:80"
+
     volumes:
       - .:/var/www
 

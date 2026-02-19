@@ -204,7 +204,7 @@ abstract class BaseCertificateDocGenerator implements DocumentGeneratorInterface
 
         if ($count > 1) {
             return [
-                'vocative' => ($hasMale && $hasFemale) ? 'os senhores e as senhoras' : ($hasMale ? 'os senhores' : 'as senhoras'),
+                'vocative' => $hasMale ? 'os senhores' : 'as senhoras',
                 'verb_notify' => 'de os notificados purgarem',
                 'verb_debtors' => ($hasMale && $hasFemale) ? 'os devedores estão' : ($hasMale ? 'os devedores estão' : 'as devedoras estão'),
                 'verb_debtor_article' => ($hasMale && $hasFemale) ? 'os devedores' : ($hasMale ? 'os devedores' : 'as devedoras'),

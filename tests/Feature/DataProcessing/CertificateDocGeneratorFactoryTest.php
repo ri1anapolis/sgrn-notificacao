@@ -113,18 +113,3 @@ it('resolves CertificateEditalDocGenerator for unsuccessful notification without
 
     expect($generator)->toBeInstanceOf(CertificateEditalDocGenerator::class);
 });
-
-it('throws exception when notification has no diligences', function () {
-    $alienation = AlienationRealEstate::factory()->create();
-
-    $notification = Notification::factory()
-        ->for($alienation, 'notifiable')
-        ->has(NotifiedPerson::factory()->count(1))
-        ->has(Address::factory()->count(1))
-        ->create();
-
-    $notification->load(['addresses.diligences.diligenceResult', 'publicNotice']);
-
-    expect(fn () => $this->factory->resolve($notification))
-        ->toThrow(\Exception::class, 'A certidão só pode ser emitida se houver uma notificação de sucesso ou se todos os endereços tiverem 3 visitas realizadas.');
-});

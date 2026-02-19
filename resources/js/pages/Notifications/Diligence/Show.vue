@@ -35,6 +35,7 @@ const toast = useToast();
 
 const isEditing = ref(false);
 const showHistoryModal = ref(false);
+const isBarMinimized = ref(false);
 
 const form = useForm({
     visit_number: 1,
@@ -167,7 +168,8 @@ const saveDiligence = () => {
                 preserveScroll: true,
                 onSuccess: () => {
                     form.reset('diligence_result_id', 'observations', 'date');
-                    toast.success('Notificação registrada com sucesso!');
+                    toast.success('Notificação registrada com sucesso!', {timeout: 2000});
+                    router.visit(route('dashboard'));
                 },
                 onError: () => {
                     toast.error('Erro ao salvar a diligência.', { timeout: 3000 });
@@ -235,34 +237,56 @@ const saveDiligence = () => {
                     <ButtonEdit @click="enableEditing" />
                 </div>
             </div>
-
             <div v-if="isFormOpen">
-                <div class="mb-10 flex flex-col md:flex-row md:items-start md:gap-x-8">
-                    <ButtonDate v-if="!isEditing" @date-registered="handleDateRegistration" />
-                    <div class="mt-4 flex flex-col md:mt-0 md:flex-1">
-                        <label for="observation" class="mb-3 font-bold text-gray-300">Campo de Observação</label>
-                        <textarea id="observation" v-model="form.observations"
-                            placeholder="Digite aqui os detalhes da sua diligência" rows="4"
-                            class="focus:ring-bege-claro focus:border-bege-claro w-full resize-none overflow-hidden rounded-lg border-2 border-[#3d4852] bg-[#1a1a1a] p-3 text-white placeholder-gray-500 transition">
-                        </textarea>
-                    </div>
-                </div>
-
-                <div class="flex flex-col items-center gap-y-8">
+                <div class="flex flex-col items-center gap-y-8 transition-all duration-300"
+                    :class="isBarMinimized ? 'pb-24' : 'pb-64 md:pb-40'">
                     <RadioGroup v-for="(results, group) in groupedDiligenceResults" :key="group" :title="group"
                         :options="results" v-model="form.diligence_result_id" name="diligence_result_id" />
                 </div>
 
-                <div class="mt-8">
-                    <div class="flex w-full flex-col items-center gap-y-4">
-                        <ButtonSaveDiligence :text="isEditing ? 'Salvar Edição' : 'Salvar Dados da Visita'"
-                            :processing-text="isEditing ? 'Salvando Edição...' : 'Salvando...'"
+                <div
+                    class="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-700 bg-[#0e1423]/95 shadow-2xl backdrop-blur-md transition-all duration-300 ease-in-out"
+                    :class="isBarMinimized ? 'h-16 md:h-auto' : 'h-auto'">
+
+                    <button type="button" @click="isBarMinimized = !isBarMinimized"
+                        class="absolute -top-10 left-1/2 flex h-10 w-12 -translate-x-1/2 items-center justify-center rounded-t-xl border-x border-t border-gray-700 bg-[#0e1423]/95 text-white backdrop-blur-md md:hidden">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transition-transform duration-300"
+                             :class="{ 'rotate-180': isBarMinimized }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+
+                    <div class="mx-auto max-w-5xl p-4 md:p-6" :class="{ 'hidden md:block': isBarMinimized }">
+                        <div class="flex flex-col gap-4 md:flex-row md:items-center md:gap-8">
+                            <div v-if="!isEditing" class="shrink-0 flex justify-center md:justify-start">
+                                <ButtonDate @date-registered="handleDateRegistration" />
+                            </div>
+
+                            <div class="flex-grow">
+                                <textarea id="observation" v-model="form.observations"
+                                    placeholder="Observações da diligência..." rows="2"
+                                    class="focus:ring-bege-claro focus:border-bege-claro w-full resize-none rounded-lg border-2 border-[#3d4852] bg-[#1a1a1a] p-3 text-sm text-white placeholder-gray-500 transition md:text-base"></textarea>
+                            </div>
+
+                            <div class="flex shrink-0 flex-col items-center gap-y-2 md:items-end">
+                                <ButtonSaveDiligence :text="isEditing ? 'Salvar Edição' : 'Salvar Dados'"
+                                    :processing-text="isEditing ? 'Salvando...' : 'Salvando...'"
+                                    :processing="form.processing"
+                                    :disabled="!isFormComplete || form.processing || (isEditing && !form.isDirty)" />
+                                <button v-if="isEditing" type="button" @click="cancelEditing"
+                                    class="text-sm font-medium text-gray-400 transition hover:text-white">
+                                    Cancelar Edição
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="isBarMinimized" class="flex h-full items-center justify-between px-6 md:hidden">
+                        <span class="text-xs font-medium text-gray-400">Controles minimizados</span>
+                        <ButtonSaveDiligence :text="isEditing ? 'Salvar' : 'Salvar'"
+                            class="scale-90"
                             :processing="form.processing"
                             :disabled="!isFormComplete || form.processing || (isEditing && !form.isDirty)" />
-                        <button v-if="isEditing" type="button" @click="cancelEditing"
-                            class="font-medium text-gray-400 transition hover:text-white">
-                            Cancelar Edição
-                        </button>
                     </div>
                 </div>
             </div>

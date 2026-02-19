@@ -17,9 +17,9 @@ class CertificateDocGeneratorFactory
             'publicNotice',
         ]);
 
-        if (! $this->canDownloadCertificate($notification)) {
-            throw new \Exception('A certidão só pode ser emitida se houver uma notificação de sucesso ou se todos os endereços tiverem 3 visitas realizadas.');
-        }
+        // if (! $this->canDownloadCertificate($notification)) {
+        //     throw new \Exception('A certidão só pode ser emitida se houver uma notificação de sucesso ou se todos os endereços tiverem 3 visitas realizadas.');
+        // }
 
         $nature = class_basename($notification->notifiable_type);
 
@@ -37,15 +37,15 @@ class CertificateDocGeneratorFactory
     /**
      * Check if a certificate can be downloaded.
      */
-    private function canDownloadCertificate(Notification $notification): bool
-    {
-        $hasSuccess = $this->hasSuccessfulDiligence($notification);
+    // private function canDownloadCertificate(Notification $notification): bool
+    // {
+    //     $hasSuccess = $this->hasSuccessfulDiligence($notification);
 
-        $hasThreeVisitsPerAddress = $notification->addresses->count() > 0 &&
-            $notification->addresses->every(fn ($address) => $address->diligences->count() >= 3);
+    //     $hasThreeVisitsPerAddress = $notification->addresses->count() > 0 &&
+    //         $notification->addresses->every(fn ($address) => $address->diligences->count() >= 3);
 
-        return $hasSuccess || $hasThreeVisitsPerAddress;
-    }
+    //     return $hasSuccess || $hasThreeVisitsPerAddress;
+    // }
 
     /**
      * Check if any diligence was successful.

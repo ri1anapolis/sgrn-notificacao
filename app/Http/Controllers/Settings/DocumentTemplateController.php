@@ -52,7 +52,7 @@ class DocumentTemplateController extends Controller
     public function update(Request $request, DocumentTemplate $template)
     {
         $request->validate([
-            'file' => ['required', 'file', 'mimes:docx', 'max:5120'],
+            'file' => ['required', 'file', 'extensions:docx', 'max:5120'],
         ]);
 
         $customDir = storage_path('app/templates/custom');

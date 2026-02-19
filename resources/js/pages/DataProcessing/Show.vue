@@ -208,11 +208,6 @@ const downloadCertificate = () => {
         return;
     }
 
-    if (!props.notification.can_download_certificate) {
-        toast.info("A certidão só pode ser emitida se houver uma notificação de sucesso ou se todos os endereços tiverem 3 visitas realizadas.", { timeout: 2500 });
-        return;
-    }
-
     if (!props.notification.has_success_diligence && !props.notification.has_public_notice) {
         if (!confirm('A notificação não possui dados de edital, deseja baixar o documento ainda sim?')) {
             return;
@@ -262,10 +257,8 @@ const downloadAdversePossessionEdital = () => {
                 Baixar Envelope
             </button>
 
-            <button @click="downloadCertificate" :class="[
-                'rounded-md px-6 py-2.5 text-sm font-semibold shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 cursor-pointer hover:scale-105 duration-100',
-                notification.can_download_certificate ? 'bg-emerald-600 hover:bg-emerald-800 text-white' : 'bg-zinc-400 text-zinc-100'
-            ]">
+            <button @click="downloadCertificate"
+                class="rounded-md px-6 py-2.5 text-sm font-semibold shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 cursor-pointer hover:scale-105 duration-100 bg-emerald-600 hover:bg-emerald-800 text-white ">
                 Baixar Certidão
             </button>
 

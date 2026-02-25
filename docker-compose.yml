@@ -25,6 +25,8 @@ services:
     restart: unless-stopped
     volumes:
       - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
+      - sgrn-storage:/var/www/storage
+      # - .:/var/www #Uncomment this line in local enviroment
     depends_on:
       - db
     environment:
@@ -36,12 +38,15 @@ services:
     build:
       context: ./docker/nginx
       dockerfile: Dockerfile
+    ports:
+      - "8401:80"
 
     container_name: sgrn_nginx
     restart: unless-stopped
 
     volumes:
       - .:/var/www
+      - sgrn-storage:/var/www/storage
 
     depends_on:
       - app
@@ -54,3 +59,4 @@ networks:
 
 volumes:
   postgres_data:
+  sgrn-storage:

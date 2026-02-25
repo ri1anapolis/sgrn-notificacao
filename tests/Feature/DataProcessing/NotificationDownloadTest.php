@@ -57,7 +57,7 @@ it('downloads alienation notification with correct filename', function () {
     $response = get(route('data-processing.notification.download', $notification));
 
     $response->assertOk();
-    $response->assertHeader('content-disposition', 'attachment; filename="Notificacao Alienacao Fiduciaria Imovel 777.666.docx"; filename*=utf-8\'\'Notificacao%20Alienacao%20Fiduciaria%20Im%C3%B3vel%20777.666.docx');
+    $response->assertHeader('content-disposition', 'attachment; filename=N-777.666.docx');
 });
 
 it('downloads envelope with correct filename', function () {
@@ -81,7 +81,7 @@ it('downloads envelope with correct filename', function () {
     $response = get(route('data-processing.envelope.download', $notification));
 
     $response->assertOk();
-    $response->assertHeader('content-disposition', 'attachment; filename="Envelope Notificacao 555.444.docx"');
+    $response->assertHeader('content-disposition', 'attachment; filename=E-555.444.docx');
 });
 
 it('downloads adjudication notification with correct filename', function () {

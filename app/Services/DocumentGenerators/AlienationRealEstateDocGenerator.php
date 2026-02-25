@@ -73,6 +73,13 @@ class AlienationRealEstateDocGenerator implements DocumentGeneratorInterface
             $editalVocative = $hasMale ? 'os senhores' : 'as senhoras';
             $verbGo = 'se dirijam';
             $guestTitle = $hasMale ? 'Convidados EM CONJUNTO:' : 'Convidadas EM CONJUNTO:';
+            $guestRun = new TextRun;
+            $fontStyle = ['name' => 'Times New Roman', 'size' => 12];
+            $guestRun->addText($hasMale ? 'Convidados ' : 'Convidadas ', $fontStyle);
+            $guestRun->addText('EM CONJUNTO', array_merge($fontStyle, ['underline' => 'single']));
+            $guestRun->addText(':', $fontStyle);
+            $template->setComplexValue('guest_title', $guestRun);
+
             $guestRequestPhrase = $hasMale ? 'dos senhores abaixo nomeados' : 'das senhoras abaixo nomeadas';
         } else {
             $person = $notification->notifiedPeople->first();
@@ -96,7 +103,9 @@ class AlienationRealEstateDocGenerator implements DocumentGeneratorInterface
             $verbNotifiedPassive = "fica Vossa Senhoria {$termCientificado}";
             $editalVocative = $isMale ? 'o senhor' : 'a senhora';
             $verbGo = 'se dirija';
-            $guestTitle = $isMale ? 'Convidado:' : 'Convidada:';
+
+            $template->setValue('guest_title', $isMale ? 'Convidado:' : 'Convidada:');
+
             $guestRequestPhrase = $isMale ? 'do senhor abaixo nomeado' : 'da senhora abaixo nomeada';
         }
 
@@ -112,7 +121,6 @@ class AlienationRealEstateDocGenerator implements DocumentGeneratorInterface
         $template->setValue('verb_notified_passive', $verbNotifiedPassive);
         $template->setValue('edital_vocative', $editalVocative);
         $template->setValue('verb_go', $verbGo);
-        $template->setValue('guest_title', $guestTitle);
         $template->setValue('guest_request_phrase', $guestRequestPhrase);
     }
 
@@ -121,6 +129,7 @@ class AlienationRealEstateDocGenerator implements DocumentGeneratorInterface
         $people = $notification->notifiedPeople;
         $count = $people->count();
 
+        $template->cloneBlock('BLOCK_PEOPLE', $count, true, true);
         $template->cloneBlock('BLOCK_PEOPLE', $count, true, true);
 
         foreach ($people as $index => $person) {
@@ -206,11 +215,11 @@ class AlienationRealEstateDocGenerator implements DocumentGeneratorInterface
 
     private function fillSignatureBlock(TemplateProcessor $template, Notification $notification): void
     {
+        $clause = $notification->notifiable->contractual_clause;
         $people = $notification->notifiedPeople;
         $count = $people->count();
-        $clause = $notification->notifiable->contractual_clause ?? '___';
 
-        if ($people->count() > 1) {
+        if (! empty($clause) && $count > 1) {
             $template->setValue('section_title', "OUTORGA DE PROCURAÇÕES - Cláusula {$clause}");
         } else {
             $template->setValue('section_title', '');
@@ -221,29 +230,29 @@ class AlienationRealEstateDocGenerator implements DocumentGeneratorInterface
         foreach ($people as $index => $person) {
             $i = $index + 1;
             $bodyRun = new TextRun;
+            $baseStyle = ['name' => 'Times New Roman', 'size' => 12, 'italic' => true];
+            $boldStyle = array_merge($baseStyle, ['bold' => true]);
 
-            $bodyRun->addText('___________________________________________________em data de _____/_____/_____.');
-            $bodyRun->addTextBreak(1);
-            $bodyRun->addText(mb_strtoupper($person->name), ['bold' => true]);
-            $bodyRun->addText(', CPF nº ', ['bold' => true]);
-            $bodyRun->addText($person->document, ['bold' => true]);
+            $bodyRun->addText("___________________________________________________em data de _____/_____/_____.\n", $baseStyle);
+            $bodyRun->addText(mb_strtoupper($person->name), $boldStyle);
+            $bodyRun->addText(', CPF nº ', $boldStyle);
+            $bodyRun->addText($person->document, $boldStyle);
 
             $others = $people->filter(fn ($p) => $p->id != $person->id);
 
-            if ($others->count() > 0) {
-
-                $bodyRun->addText(', por si e por ');
+            if (! empty($clause) && $others->count() > 0) {
+                $bodyRun->addText(', por si e por ', $baseStyle);
                 $othersList = $others->map(function ($other) {
                     return mb_strtoupper($other->name).', CPF nº '.$other->document;
                 })->join(', ', ' e ');
 
-                $bodyRun->addText($othersList, ['bold' => true]);
+                $bodyRun->addText($othersList, $boldStyle);
 
-                $bodyRun->addText(', conforme procuração expressamente outorgada na ');
-                $bodyRun->addText("Cláusula {$clause} ", ['bold' => true]);
-                $bodyRun->addText('do contrato ora executado.');
+                $bodyRun->addText(', conforme procuração expressamente outorgada na ', $baseStyle);
+                $bodyRun->addText("Cláusula {$clause} ", $boldStyle);
+                $bodyRun->addText('do contrato ora executado.', $baseStyle);
             } else {
-                $bodyRun->addText('.');
+                $bodyRun->addText('.', $baseStyle);
             }
 
             $template->setComplexValue("signature_content#{$i}", $bodyRun);

@@ -7,8 +7,8 @@ use App\Policies\NotificationPolicy;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -28,7 +28,7 @@ class AppServiceProvider extends ServiceProvider
         Model::unguard();
         Gate::policy(Notification::class, NotificationPolicy::class);
         Carbon::setLocale('pt-BR');
-        
+
         if ($this->app->environment('production')) {
             URL::forceScheme('https');
         }

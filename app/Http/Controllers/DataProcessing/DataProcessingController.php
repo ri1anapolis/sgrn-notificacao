@@ -91,17 +91,20 @@ class DataProcessingController extends Controller
 
             $tempFile = $generator->generate($notification);
 
-            $natureName = match (class_basename($notification->notifiable_type)) {
-                'AlienationRealEstate' => 'Alienacao Fiduciaria Imóvel',
-                'RetificationArea' => 'Retificacao de Area',
-                'Adjudication' => 'Adjudicacao Compulsoria',
-                'PurchaseAndSaleIncorporation' => 'Compromisso de Compra e Venda Incorporacao',
-                'PurchaseAndSaleSubdivision' => 'Compromisso de Compra e Venda Loteamento',
-                'AdversePossession' => 'Usucapiao',
-                default => 'Geral',
-            };
+            if (class_basename($notification->notifiable_type) === 'AlienationRealEstate') {
+                $fileName = "N-{$this->formatProtocol($notification->protocol)}.docx";
+            } else {
+                $natureName = match (class_basename($notification->notifiable_type)) {
+                    'RetificationArea' => 'Retificacao de Area',
+                    'Adjudication' => 'Adjudicacao Compulsoria',
+                    'PurchaseAndSaleIncorporation' => 'Compromisso de Compra e Venda Incorporacao',
+                    'PurchaseAndSaleSubdivision' => 'Compromisso de Compra e Venda Loteamento',
+                    'AdversePossession' => 'Usucapiao',
+                    default => 'Geral',
+                };
 
-            $fileName = "Notificacao {$natureName}{$variantSuffix} {$notification->protocol}.docx";
+                $fileName = "Notificacao {$natureName}{$variantSuffix} {$notification->protocol}.docx";
+            }
 
             return $this->downloadFile($tempFile, $fileName);
         } catch (\Exception $e) {
@@ -115,7 +118,7 @@ class DataProcessingController extends Controller
     ) {
         try {
             $tempFile = $generator->generate($notification);
-            $fileName = "Envelope Notificacao {$notification->protocol}.docx";
+            $fileName = "E-{$this->formatProtocol($notification->protocol)}.docx";
 
             return $this->downloadFile($tempFile, $fileName);
         } catch (\Exception $e) {
@@ -154,5 +157,16 @@ class DataProcessingController extends Controller
         } catch (\Exception $e) {
             return back()->withErrors(['geral' => 'Erro ao gerar edital: '.$e->getMessage()]);
         }
+    }
+
+    private function formatProtocol(string $protocol): string
+    {
+        $cleanProtocol = str_replace('.', '', $protocol);
+
+        if (is_numeric($cleanProtocol)) {
+            return number_format((float) $cleanProtocol, 0, ',', '.');
+        }
+
+        return $protocol;
     }
 }

@@ -75,7 +75,8 @@ class EnvelopeDocGenerator implements DocumentGeneratorInterface
         foreach ($people as $p) {
             $peopleList[] = mb_strtoupper($p->name);
         }
-        $indent = '                               ';
+
+        $indent = str_repeat("\u{00A0}", 36);
         $peopleString = implode("\n".$indent, $peopleList);
 
         foreach ($people as $index => $mainPerson) {
@@ -88,15 +89,18 @@ class EnvelopeDocGenerator implements DocumentGeneratorInterface
             $template->setValue("clause#{$i}", $notifiable->contractual_clause);
             $template->setValue("count_people#{$i}", $peopleCount);
             $template->setValue("current_page#{$i}", $i);
-            $template->setValue("address_notification#{$i}", $notificationAddressesText.', Anápolis/GO');
+            $addrNotifRun = new \PhpOffice\PhpWord\Element\TextRun;
+            $fontStyle = ['name' => 'Times New Roman', 'size' => 12, 'bold' => false];
+            $addrNotifRun->addText($notificationAddressesText, $fontStyle);
+            $template->setComplexValue("address_notification#{$i}", $addrNotifRun);
 
             $template->setValue("people_list#{$i}", $peopleString);
 
-            $allAddressesString = $globalAddresses
-                ->map(fn ($a) => $a->address.', Anápolis/GO')
-                ->implode("\n");
+            $addressRun = new \PhpOffice\PhpWord\Element\TextRun;
+            $addressString = $globalAddresses->map(fn ($a) => $a->address)->implode("\n");
+            $addressRun->addText($addressString, $fontStyle);
+            $template->setComplexValue("address_person#{$i}", $addressRun);
 
-            $template->setValue("address_person#{$i}", $allAddressesString);
         }
 
         $tempFile = tempnam(sys_get_temp_dir(), 'envelope_');

@@ -1,10 +1,24 @@
 export const registrationMask = {
-    mask: [
-        '#', '##', '###',
-        '#.###', '##.###', '###.###',
-        '#.###.###', '##.###.###', '###.###.###',
-        '#.###.###.###'
-    ]
+    tokens: {
+        'Z': { pattern: /./ }
+    },
+    mask: (value: string) => {
+        if (value.includes('-') || value.includes(' ')) {
+            return 'ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ';
+        }
+
+        const masks = [
+            '#', '##', '###',
+            '#.###', '##.###', '###.###',
+            '#.###.###', '##.###.###', '###.###.###',
+            '#.###.###.###'
+        ];
+
+        const cleanValue = value.replace(/\./g, "");
+        if (cleanValue.length > 10) return 'ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ';
+
+        return masks.find(m => m.replace(/\./g, "").length >= cleanValue.length) || masks[masks.length - 1];
+    }
 };
 
 export const ordinalMask = {
@@ -22,10 +36,19 @@ export const actMask = {
         'S': {
             pattern: /[a-zA-Z]/,
             transform: (v: string) => v.toLocaleUpperCase()
-        }
+        },
+        'Z': { pattern: /./ }
     },
 
     mask: (value: string) => {
+        const hasSpace = value.includes(' ');
+        const hyphenCount = (value.match(/-/g) || []).length;
+        const secondHyphenIndex = value.lastIndexOf('-');
+
+        if (hasSpace || hyphenCount > 1 || (hyphenCount === 1 && secondHyphenIndex > 2)) {
+            return 'ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ';
+        }
+
         const numberOfLetters = value.replace(/[^a-zA-Z]/g, "").length;
 
         if (numberOfLetters >= 2) {

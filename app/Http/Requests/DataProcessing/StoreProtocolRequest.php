@@ -22,10 +22,10 @@ class StoreProtocolRequest extends FormRequest
      */
     public function rules(): array
     {
-        $onlyNumbers = 'regex:/^[0-9]+$/';
+        $alphanumeric = 'regex:/^[a-zA-Z0-9]{1,7}$/';
 
         return [
-            'protocol' => ['required', $onlyNumbers, 'max:20'],
+            'protocol' => ['required', $alphanumeric, 'max:7'],
         ];
     }
 }

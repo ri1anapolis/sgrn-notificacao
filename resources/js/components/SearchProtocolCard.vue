@@ -46,7 +46,7 @@ const protocolToCreate = ref('');
 const submit = async () => {
     if (!form.protocol) return;
 
-    const formattedProtocol = form.protocol.replace(/\D/g, '').slice(0, 6);
+    const formattedProtocol = form.protocol.replace(/[^a-zA-Z0-9]/g, '').slice(0, 7).toUpperCase();
 
     isChecking.value = true;
 
@@ -102,9 +102,9 @@ const createProtocol = () => {
 <template>
     <CardSection :image-url="props.imageUrl" :altName="props.altName">
         <form @submit.prevent="submit" class="flex w-11/12 items-center gap-x-2 rounded-2xl bg-[#1a1a1a] p-2">
-            <input type="text" placeholder="Digite o protocolo..." maxlength="6"
+            <input type="text" placeholder="Digite o protocolo..." maxlength="7"
                 class="ml-5 flex-grow border-0 bg-transparent text-sm text-white placeholder-gray-400 focus:ring-0 focus:outline-none"
-                v-model="form.protocol" @input="form.protocol = form.protocol.replace(/\D/g, '').slice(0, 6)"
+                v-model="form.protocol" @input="form.protocol = form.protocol.replace(/[^a-zA-Z0-9]/g, '').slice(0, 7).toUpperCase()"
                 :disabled="isChecking" />
 
             <button type="submit" :disabled="isChecking"

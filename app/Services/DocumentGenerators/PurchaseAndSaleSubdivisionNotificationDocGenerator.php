@@ -7,9 +7,10 @@ use App\Services\DocumentGenerators\Traits\DocumentFormatterTrait;
 use App\Services\TemplateResolver;
 use Carbon\Carbon;
 use Exception;
+use PhpOffice\PhpWord\Element\TextRun;
 use PhpOffice\PhpWord\TemplateProcessor;
 
-class PurchaseAndSaleNotificationDocGenerator implements DocumentGeneratorInterface
+class PurchaseAndSaleSubdivisionNotificationDocGenerator implements DocumentGeneratorInterface
 {
     use DocumentFormatterTrait;
 
@@ -17,7 +18,7 @@ class PurchaseAndSaleNotificationDocGenerator implements DocumentGeneratorInterf
     {
         $notification->load(['notifiable', 'notifiedPeople', 'addresses']);
 
-        $templatePath = app(TemplateResolver::class)->resolve('purchase_and_sale_notification');
+        $templatePath = app(TemplateResolver::class)->resolve('purchase_and_sale_subdivision_notification');
         if (! file_exists($templatePath)) {
             throw new Exception("Modelo de documento não encontrado: {$templatePath}");
         }
@@ -28,9 +29,10 @@ class PurchaseAndSaleNotificationDocGenerator implements DocumentGeneratorInterf
         $this->fillPersonData($template, $notification);
         $this->fillAddressData($template, $notification);
         $this->fillSpecificData($template, $notification);
+        $this->fillEditalData($template, $notification);
         $this->fillSignatureBlock($template, $notification);
 
-        $tempFile = tempnam(sys_get_temp_dir(), 'notificacao_purchase_');
+        $tempFile = tempnam(sys_get_temp_dir(), 'notificacao_purchase_subdivision_');
         $template->saveAs($tempFile);
 
         return $tempFile;
@@ -62,10 +64,23 @@ class PurchaseAndSaleNotificationDocGenerator implements DocumentGeneratorInterf
 
         if ($peopleCount > 1) {
             $greeting = $hasMale ? 'Prezados Senhores,' : 'Prezadas Senhoras,';
-            $vocative = $hasMale ? 'Aos Senhores,' : 'Às Senhoras,';
+            $vocative = $hasMale ? 'Senhores,' : 'Senhoras,';
             $verbIntimate = 'intimar-lhes';
             $verbComply = 'cumpram';
-            $pronounTreatment = 'ficam Vossas Senhorias cientificadas';
+            $pronounTreatment = 'Vossas Senhorias';
+            $pronounTreatmentPhrase = 'ficam Vossas Senhorias cientificadas';
+            $genitiveTreatment = $hasMale ? 'dos Senhores abaixo nomeados' : 'das Senhoras abaixo nomeadas';
+            $debtor_should = $hasMale ? 'os devedores deverão' : 'as devedoras deverão';
+            $verb_go = 'se dirijam';
+            $editalVocative = $hasMale ? 'os senhores' : 'as senhoras';
+            $verbProceed = 'efetuarem';
+
+            $guestRun = new TextRun;
+            $fontStyle = ['name' => 'Times New Roman', 'size' => 12];
+            $guestRun->addText($hasMale ? 'Convidados ' : 'Convidadas ', $fontStyle);
+            $guestRun->addText('EM CONJUNTO', array_merge($fontStyle, ['underline' => 'single']));
+            $guestRun->addText(':', $fontStyle);
+            $template->setComplexValue('guest_title', $guestRun);
         } else {
             $person = $notification->notifiedPeople->first();
 
@@ -78,10 +93,18 @@ class PurchaseAndSaleNotificationDocGenerator implements DocumentGeneratorInterf
             $isMale = in_array($gender, ['masculine', 'male', 'm', 'masculino']);
 
             $greeting = $isMale ? 'Prezado Senhor,' : 'Prezada Senhora,';
-            $vocative = $isMale ? 'Ao Senhor,' : 'À Senhora,';
-            $verbIntimate = $isMale ? 'intimá-lo' : 'intimá-la';
+            $vocative = $isMale ? 'Senhor,' : 'Senhora,';
+            $verbIntimate = 'intimar-lhe';
             $verbComply = 'cumpra';
-            $pronounTreatment = 'fica Vossa Senhoria cientificada';
+            $pronounTreatment = 'Vossa Senhoria';
+            $pronounTreatmentPhrase = 'fica Vossa Senhoria cientificada';
+            $genitiveTreatment = $isMale ? 'do Senhor abaixo nomeado' : 'da Senhora abaixo nomeada';
+            $debtor_should = $isMale ? 'o devedor deverá' : 'a devedora deverá';
+            $verb_go = 'se dirija';
+            $editalVocative = $isMale ? 'o senhor' : 'a senhora';
+            $verbProceed = 'efetuar';
+
+            $template->setValue('guest_title', $isMale ? 'Convidado:' : 'Convidada:');
         }
 
         $template->setValue('greeting', $greeting);
@@ -89,6 +112,12 @@ class PurchaseAndSaleNotificationDocGenerator implements DocumentGeneratorInterf
         $template->setValue('verb_intimate', $verbIntimate);
         $template->setValue('verb_comply', $verbComply);
         $template->setValue('pronoun_treatment', $pronounTreatment);
+        $template->setValue('pronoun_treatment_phrase', $pronounTreatmentPhrase);
+        $template->setValue('genitive_treatment', $genitiveTreatment);
+        $template->setValue('debtor_should', $debtor_should);
+        $template->setValue('verb_go', $verb_go);
+        $template->setValue('edital_vocative', $editalVocative);
+        $template->setValue('verb_proceed', $verbProceed);
     }
 
     private function fillPersonData(TemplateProcessor $template, Notification $notification): void
@@ -96,6 +125,7 @@ class PurchaseAndSaleNotificationDocGenerator implements DocumentGeneratorInterf
         $people = $notification->notifiedPeople;
         $count = $people->count();
 
+        $template->cloneBlock('BLOCK_PEOPLE', $count, true, true);
         $template->cloneBlock('BLOCK_PEOPLE', $count, true, true);
 
         foreach ($people as $index => $person) {
@@ -119,6 +149,20 @@ class PurchaseAndSaleNotificationDocGenerator implements DocumentGeneratorInterf
             $line = ($address->address ?? '').$suffix;
             $template->setValue("line_address#{$i}", $line);
         }
+    }
+
+    private function fillEditalData(TemplateProcessor $template, Notification $notification): void
+    {
+        $people = $notification->notifiedPeople;
+
+        $textList = $people->map(function ($person) {
+            $name = mb_strtoupper($person->name);
+            $doc = $person->document;
+
+            return "{$name}, CPF nº {$doc}";
+        })->join(', ', ' e ');
+
+        $template->setValue('text_list_edital', $textList);
     }
 
     private function fillSpecificData(TemplateProcessor $template, Notification $notification): void

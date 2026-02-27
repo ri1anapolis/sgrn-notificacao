@@ -16,9 +16,14 @@ class DocumentTemplateSeeder extends Seeder
                 'description' => 'Modelo de notificação para alienação fiduciária de bem imóvel.',
             ],
             [
-                'slug' => 'purchase_and_sale_notification',
-                'title' => 'Notificação - Compromisso de Compra e Venda',
-                'description' => 'Modelo de notificação para loteamentos e incorporações imobiliárias.',
+                'slug' => 'purchase_and_sale_incorporation_notification',
+                'title' => 'Notificação - Compromisso de Compra e Venda Incorporação',
+                'description' => 'Modelo de notificação para incorporações imobiliárias.',
+            ],
+            [
+                'slug' => 'purchase_and_sale_subdivision_notification',
+                'title' => 'Notificação - Compromisso de Compra e Venda Loteamento',
+                'description' => 'Modelo de notificação para loteamentos.',
             ],
             [
                 'slug' => 'rectification_notification',

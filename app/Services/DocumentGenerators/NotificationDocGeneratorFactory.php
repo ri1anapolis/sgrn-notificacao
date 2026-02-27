@@ -10,8 +10,8 @@ class NotificationDocGeneratorFactory
         'alienation_real_estate' => AlienationRealEstateDocGenerator::class,
         'retification_area' => RectificationNotificationDocGenerator::class,
         'adjudication' => AdjudicationNotificationDocGenerator::class,
-        'purchase_and_sale_incorporation' => PurchaseAndSaleNotificationDocGenerator::class,
-        'purchase_and_sale_subdivision' => PurchaseAndSaleNotificationDocGenerator::class,
+        'purchase_and_sale_incorporation' => PurchaseAndSaleIncorporationNotificationDocGenerator::class,
+        'purchase_and_sale_subdivision' => PurchaseAndSaleSubdivisionNotificationDocGenerator::class,
         'adverse_possession' => AdversePossessionNotificationPrivateDocGenerator::class,
     ];
 

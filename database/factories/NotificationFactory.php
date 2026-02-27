@@ -37,7 +37,7 @@ class NotificationFactory extends Factory
         $notifiable = $notifiableType::factory()->create();
 
         return [
-            'protocol' => $this->faker->unique()->numerify('######'),
+            'protocol' => $this->faker->unique()->bothify('#######'),
             'status' => $this->faker->randomElement(NotificationStatus::class),
             'notifiable_id' => $notifiable->id,
             'notifiable_type' => $notifiableType,

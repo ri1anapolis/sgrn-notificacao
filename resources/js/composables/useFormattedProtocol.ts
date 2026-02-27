@@ -1,5 +1,9 @@
 export function useProtocolFormatter(protocol: string) {
-    const formattedProtocol = String(protocol);
-
-    return formattedProtocol.replace(/\B(?=(\d{3})+(?!\d))/g, ".");;
+    const str = String(protocol);
+    const match = str.match(/^([a-zA-Z]*)(\d+)$/);
+    if (match) {
+        const [, prefix, digits] = match;
+        return prefix + digits.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+    return str;
 }

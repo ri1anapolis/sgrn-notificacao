@@ -7,7 +7,6 @@ docker-compose.yml
 docker-compose.override.yml
 Dockerfile
 Dockerfile.frontend
-docker/
 public/build
 public/storage
 storage/*.key

@@ -18,6 +18,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: sgrn_app
       args:
         user: sgrn
         uid: 1000
@@ -36,8 +37,9 @@ services:
 
   nginx:
     build:
-      context: ./docker/nginx
+      context: .
       dockerfile: Dockerfile
+      target: sgrn_nginx
     ports:
       - "8401:80"
 
@@ -45,7 +47,6 @@ services:
     restart: unless-stopped
 
     volumes:
-      - .:/var/www
       - sgrn-storage:/var/www/storage
 
     depends_on:

@@ -1,5 +1,5 @@
 
-FROM php:8.3-fpm
+FROM php:8.3-fpm as sgrn_app
 
 ARG user=sgrn
 ARG uid=1000
@@ -53,3 +53,11 @@ USER $user
 EXPOSE 9000
 
 CMD ["php-fpm"]
+
+FROM nginx:alpine as sgrn_nginx
+
+RUN rm /etc/nginx/conf.d/default.conf
+
+COPY ./docker/nginx/default.conf /etc/nginx/conf.d/default.conf
+
+COPY --from=sgrn_app /var/www /var/www

@@ -1,24 +1,19 @@
 export const registrationMask = {
     tokens: {
-        'Z': { pattern: /./ }
+        Z: { pattern: /./ },
     },
     mask: (value: string) => {
         if (value.includes('-') || value.includes(' ')) {
             return 'ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ';
         }
 
-        const masks = [
-            '#', '##', '###',
-            '#.###', '##.###', '###.###',
-            '#.###.###', '##.###.###', '###.###.###',
-            '#.###.###.###'
-        ];
+        const masks = ['#', '##', '###', '#.###', '##.###', '###.###', '#.###.###', '##.###.###', '###.###.###', '#.###.###.###'];
 
-        const cleanValue = value.replace(/\./g, "");
+        const cleanValue = value.replace(/\./g, '');
         if (cleanValue.length > 10) return 'ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ';
 
-        return masks.find(m => m.replace(/\./g, "").length >= cleanValue.length) || masks[masks.length - 1];
-    }
+        return masks.find((m) => m.replace(/\./g, '').length >= cleanValue.length) || masks[masks.length - 1];
+    },
 };
 
 export const ordinalMask = {
@@ -27,17 +22,16 @@ export const ordinalMask = {
     postProcess: (val: string) => {
         if (!val) return '';
         return `${val}º`;
-    }
+    },
 };
-
 
 export const actMask = {
     tokens: {
-        'S': {
+        S: {
             pattern: /[a-zA-Z]/,
-            transform: (v: string) => v.toLocaleUpperCase()
+            transform: (v: string) => v.toLocaleUpperCase(),
         },
-        'Z': { pattern: /./ }
+        Z: { pattern: /./ },
     },
 
     mask: (value: string) => {
@@ -49,16 +43,26 @@ export const actMask = {
             return 'ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ';
         }
 
-        const numberOfLetters = value.replace(/[^a-zA-Z]/g, "").length;
+        const numberOfLetters = value.replace(/[^a-zA-Z]/g, '').length;
 
         if (numberOfLetters >= 2) {
             return 'SS-####';
         }
         return 'S-####';
-    }
-}
+    },
+};
 
 export const currencyMask = {
+    preProcess: (val: string) => {
+        if (!val) return '';
+
+        const onlyNumbers = val.replace(/\D/g, '');
+
+        if (!onlyNumbers) return '';
+
+        return (Number(onlyNumbers) / 100).toString();
+    },
+
     number: {
         locale: 'pt-BR',
         fraction: 2,
@@ -67,5 +71,5 @@ export const currencyMask = {
     postProcess: (val: string) => {
         if (!val) return '';
         return `R$ ${val}`;
-    }
+    },
 };

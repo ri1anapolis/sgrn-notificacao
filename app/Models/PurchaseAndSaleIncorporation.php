@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\BrlCurrencyCast;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
@@ -14,6 +15,8 @@ class PurchaseAndSaleIncorporation extends Model
         'contract_date' => 'datetime',
         'debt_position_date' => 'datetime',
         'grace_period' => 'boolean',
+        'total_amount_debt' => BrlCurrencyCast::class,
+        'emoluments_intimation' => BrlCurrencyCast::class,
     ];
 
     public function notification(): MorphOne

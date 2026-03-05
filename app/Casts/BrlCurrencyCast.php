@@ -19,13 +19,13 @@ class BrlCurrencyCast implements CastsAttributes
         }
 
         if (is_numeric($value)) {
-            return (float) $value;
+            return number_format((float) $value, 2, '.', '');
         }
 
         $cleanValue = str_replace(['R$', ' ', '.'], '', $value);
 
         $cleanValue = str_replace(',', '.', $cleanValue);
 
-        return (float) $cleanValue;
+        return number_format((float) $cleanValue, 2, '.', '');
     }
 }

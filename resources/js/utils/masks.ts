@@ -1,3 +1,23 @@
+export const toCurrencyDisplay = (value: unknown): string | null => {
+    if (value === null || value === undefined || value === '') return null;
+
+    if (typeof value === 'string') {
+        if (value.includes('R$') || value.includes(',')) return value;
+        const num = parseFloat(value);
+        if (isNaN(num)) return value;
+        value = num;
+    }
+
+    if (typeof value === 'number') {
+        return new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL',
+        }).format(value);
+    }
+
+    return null;
+};
+
 export const registrationMask = {
     tokens: {
         Z: { pattern: /./ },
@@ -53,23 +73,37 @@ export const actMask = {
 };
 
 export const currencyMask = {
+    tokens: {
+        Z: { pattern: /./ },
+    },
+
     preProcess: (val: string) => {
         if (!val) return '';
+
+        // Handle comma as a shortcut: if typed, move everything to the left of the decimal
+        if (val.endsWith(',')) {
+            const onlyNumbers = val.replace(/\D/g, '');
+            return onlyNumbers.replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ',00';
+        }
 
         const onlyNumbers = val.replace(/\D/g, '');
 
         if (!onlyNumbers) return '';
 
-        return (Number(onlyNumbers) / 100).toString();
+        const padded = onlyNumbers.padStart(3, '0');
+        const intPart = padded.slice(0, -2).replace(/^0+/, '') || '0';
+        const decPart = padded.slice(-2);
+
+        return intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ',' + decPart;
     },
 
-    number: {
-        locale: 'pt-BR',
-        fraction: 2,
+    mask: (val: string) => {
+        return 'Z'.repeat(Math.max(val.length, 1));
     },
 
     postProcess: (val: string) => {
         if (!val) return '';
+        if (val.startsWith('R$')) return val;
         return `R$ ${val}`;
     },
 };

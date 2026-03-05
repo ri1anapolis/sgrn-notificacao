@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 import InputForm from '../../../components/InputForm.vue';
 import { vMaska } from "maska/vue";
-import { registrationMask, ordinalMask, actMask, currencyMask } from '@/utils/masks';
+import { registrationMask, ordinalMask, actMask, currencyMask, toCurrencyDisplay } from '@/utils/masks';
 import InputDateForm from '@/components/InputDateForm.vue';
 import { formatDateForInput } from '@/utils/formatters';
 import { registryOptions } from '@/constants/natures';
@@ -64,10 +64,12 @@ const internalData = computed({
 
         return {
             ...data,
+            emoluments_intimation: toCurrencyDisplay(data.emoluments_intimation),
+            total_amount_debt: toCurrencyDisplay(data.total_amount_debt),
             contract_date: formatDateForInput(data.contract_date as string | null),
             debt_position_date: formatDateForInput(data.debt_position_date as string | null),
             default_period: data.default_period,
-        };
+        } as any;
     },
     set: (value) => emit('update:modelValue', value),
 });

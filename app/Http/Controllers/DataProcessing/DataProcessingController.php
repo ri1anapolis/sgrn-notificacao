@@ -91,7 +91,7 @@ class DataProcessingController extends Controller
 
             $tempFile = $generator->generate($notification);
 
-            if (class_basename($notification->notifiable_type) === 'AlienationRealEstate') {
+            if (in_array(class_basename($notification->notifiable_type), ['AlienationRealEstate', 'AlienationMovableProperty'])) {
                 $fileName = "N-{$this->formatProtocol($notification->protocol)}.docx";
             } else {
                 $natureName = match (class_basename($notification->notifiable_type)) {
@@ -133,7 +133,18 @@ class DataProcessingController extends Controller
         try {
             $generator = $factory->resolve($notification);
             $tempFile = $generator->generate($notification);
-            $fileName = "Certidao Notificacao {$notification->protocol}.docx";
+
+            $natureName = match (class_basename($notification->notifiable_type)) {
+                'RetificationArea' => 'Retificacao de Area',
+                'Adjudication' => 'Adjudicacao Compulsoria',
+                'PurchaseAndSaleIncorporation' => 'Compromisso de Compra e Venda Incorporacao',
+                'PurchaseAndSaleSubdivision' => 'Compromisso de Compra e Venda Loteamento',
+                'AdversePossession' => 'Usucapiao',
+                'AlienationRealEstate' => 'Alienacao Fiduciaria',
+                default => 'Notificacao',
+            };
+
+            $fileName = "Certidao {$natureName} {$notification->protocol}.docx";
 
             return $this->downloadFile($tempFile, $fileName);
         } catch (\Exception $e) {

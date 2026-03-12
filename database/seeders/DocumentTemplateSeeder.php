@@ -61,6 +61,36 @@ class DocumentTemplateSeeder extends Seeder
                 'description' => 'Modelo de certidão para casos que exigiram publicação de edital por impossibilidade de notificação pessoal.',
             ],
             [
+                'slug' => 'certificate_retification',
+                'title' => 'Certidão - Retificação de Área',
+                'description' => 'Modelo de certidão para casos em que a natureza é Retificação de área.',
+            ],
+            [
+                'slug' => 'certificate_purchase_subdivision',
+                'title' => 'Certidão - Compromisso de Compra e Venda (Loteamento)',
+                'description' => 'Modelo de certidão para casos em que a natureza é Compromisso de Compra e Venda Loteamento.',
+            ],
+            [
+                'slug' => 'certificate_purchase_incorporation',
+                'title' => 'Certidão - Compromisso de Compra e Venda (Incorporação)',
+                'description' => 'Modelo de certidão para casos em que a natureza é Compromisso de Compra e Venda Incorporação.',
+            ],
+            [
+                'slug' => 'certificate_adjudication',
+                'title' => 'Certidão - Adjudicação Compulsória',
+                'description' => 'Modelo de certidão para casos em que a natureza é Adjudicação Compulsória.',
+            ],
+            [
+                'slug' => 'certificate_movable_alienation',
+                'title' => 'Certidão - Alienação Fiduciária de Bem Móvel',
+                'description' => 'Modelo de certidão para casos em que a natureza é Alienação Fiduciária de Bem Móvel.',
+            ],
+            [
+                'slug' => 'notification_movable_alienation',
+                'title' => 'Notificação - Alienação Fiduciária de Bem Móvel',
+                'description' => 'Modelo de notificação para casos em que a natureza é Alienação Fiduciária de Bem Móvel.',
+            ],
+            [
                 'slug' => 'envelope',
                 'title' => 'Envelope',
                 'description' => 'Modelo de envelope para envio de notificações via carta com aviso de recebimento.',

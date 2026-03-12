@@ -55,7 +55,7 @@ Route::bind('notification', function ($value, RouteObject $route) {
 
 Route::middleware(['auth', 'verified'])
     ->prefix('notifications/{notification}')
-    ->where(['notification' => '[0-9]+'])
+    ->where(['notification' => '[A-Za-z0-9.-]+'])
     ->group(function () {
         Route::get('/', [NotificationController::class, 'show'])
             ->name('notifications.show');

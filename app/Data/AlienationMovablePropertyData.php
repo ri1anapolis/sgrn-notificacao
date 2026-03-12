@@ -18,7 +18,7 @@ class AlienationMovablePropertyData extends Data
         public ?string $emoluments_intimation,
         public ?string $contract_number,
         public ?DateTime $contract_date,
-        public ?int $total_amount_debt,
+        public ?string $total_amount_debt,
         public ?DateTime $debt_position_date,
         public ?string $default_period,
         public bool $grace_period,

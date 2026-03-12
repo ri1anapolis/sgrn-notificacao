@@ -6,6 +6,7 @@ use App\Models\Notification;
 use App\Services\DocumentGenerators\Traits\DocumentFormatterTrait;
 use Carbon\Carbon;
 use Exception;
+use PhpOffice\PhpWord\Element\TextRun;
 use PhpOffice\PhpWord\TemplateProcessor;
 
 abstract class BaseCertificateDocGenerator implements DocumentGeneratorInterface
@@ -83,6 +84,9 @@ abstract class BaseCertificateDocGenerator implements DocumentGeneratorInterface
         $this->formatCurrency($template, 'value_debt', $this->getTotalAmountDebt($data, $notification->notifiable_type));
         $this->formatDateShort($template, 'debt_date', $this->getDebtPositionDate($data, $notification->notifiable_type));
 
+        $template->setValue('contractual_clause', $data->contractual_clause ?? '');
+        $template->setValue('short_date', $now->format('d/m/Y'));
+
         $creditor = $data->credor ?? $data->creditor ?? '';
         $cnpj = '';
         if (preg_match('/CNPJ[:.\s]*([0-9.\-\/]+)/i', $creditor, $matches)) {
@@ -116,7 +120,9 @@ abstract class BaseCertificateDocGenerator implements DocumentGeneratorInterface
             $personListText = $personParts[0] ?? '';
         }
 
-        $template->setValue('people_list', $personListText);
+        $peopleRun = new TextRun;
+        $peopleRun->addText($personListText, ['bold' => true, 'name' => 'Times New Roman', 'size' => 12]);
+        $template->setComplexValue('people_list', $peopleRun);
 
         $template->setValue('list_number_notified_people', $people->pluck('phone')->filter()->join(', '));
         $template->setValue('list_email_notified_people', $people->pluck('email')->filter()->join(', '));
@@ -193,6 +199,7 @@ abstract class BaseCertificateDocGenerator implements DocumentGeneratorInterface
 
         $visitsText = implode("\n\n", $visitParts);
         $template->setValue('visits_list', $visitsText);
+        $template->setValue('visists_list', $visitsText);
     }
 
     protected function getGenderTerms(Notification $notification): array

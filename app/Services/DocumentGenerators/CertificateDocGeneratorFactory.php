@@ -27,6 +27,22 @@ class CertificateDocGeneratorFactory
             return new CertificateRetificationDocGenerator;
         }
 
+        if ($nature === 'PurchaseAndSaleSubdivision') {
+            return new CertificatePurchaseSubdivisionDocGenerator;
+        }
+
+        if ($nature === 'PurchaseAndSaleIncorporation') {
+            return new CertificatePurchaseIncorporationDocGenerator;
+        }
+
+        if ($nature === 'Adjudication') {
+            return new CertificateAdjudicationDocGenerator;
+        }
+
+        if ($nature === 'AlienationMovableProperty') {
+            return new CertificateMovableAlienationDocGenerator;
+        }
+
         if ($this->hasSuccessfulDiligence($notification)) {
             return new CertificateStandardDocGenerator;
         }

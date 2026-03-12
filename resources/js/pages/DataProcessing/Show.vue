@@ -141,7 +141,20 @@ const submit = () => {
     form.transform(() => finalPayload).put(route('data-processing.update', props.notification.protocol), {
         preserveScroll: true,
 
-        onSuccess: () => {
+        onSuccess: (page) => {
+            const updatedNotification = page.props.notification as App.Data.NotificationData;
+            if (updatedNotification) {
+                form.notified_people = form.notified_people.map((person, index) => {
+                    const updatedPerson = updatedNotification.notified_people?.[index];
+                    return updatedPerson ? { ...person, id: updatedPerson.id } : person;
+                });
+
+                form.addresses = form.addresses.map((address, index) => {
+                    const updatedAddress = updatedNotification.addresses?.[index];
+                    return updatedAddress ? { ...address, id: updatedAddress.id } : address;
+                });
+            }
+
             setTimeout(() => {
                 form.defaults();
             }, 100);

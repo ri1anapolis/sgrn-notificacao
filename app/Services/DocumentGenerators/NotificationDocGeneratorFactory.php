@@ -13,6 +13,7 @@ class NotificationDocGeneratorFactory
         'purchase_and_sale_incorporation' => PurchaseAndSaleIncorporationNotificationDocGenerator::class,
         'purchase_and_sale_subdivision' => PurchaseAndSaleSubdivisionNotificationDocGenerator::class,
         'adverse_possession' => AdversePossessionNotificationPrivateDocGenerator::class,
+        'alienation_movable_property' => AlienationMovablePropertyNotificationDocGenerator::class,
     ];
 
     public function resolve(string $notifiableType): DocumentGeneratorInterface

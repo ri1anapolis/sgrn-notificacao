@@ -8,7 +8,6 @@ use App\Models\Notification;
 use App\Models\NotifiedPerson;
 use App\Services\DocumentGenerators\CertificateDocGeneratorFactory;
 use App\Services\DocumentGenerators\CertificateEditalDocGenerator;
-use App\Services\DocumentGenerators\CertificateStandardDocGenerator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -46,7 +45,7 @@ it('resolves CertificateStandardDocGenerator for successful notification', funct
 
     $generator = $this->factory->resolve($notification);
 
-    expect($generator)->toBeInstanceOf(CertificateStandardDocGenerator::class);
+    expect($generator)->toBeInstanceOf(CertificateEditalDocGenerator::class);
 });
 
 it('resolves CertificateEditalDocGenerator for unsuccessful notification with public notice', function () {
@@ -134,6 +133,7 @@ it('normalizes split placeholders and replaces values in certificate edital', fu
     expect(str_contains($xml, '${edital_date_1}'))->toBeFalse();
     expect(str_contains($xml, '${publication_2_text}'))->toBeFalse();
     expect(str_contains($xml, '${publication_3_text}'))->toBeFalse();
+    expect(str_contains($xml, '${contractual_clause}'))->toBeFalse();
 });
 
 it('resolves CertificateEditalDocGenerator for unsuccessful notification without public notice', function () {

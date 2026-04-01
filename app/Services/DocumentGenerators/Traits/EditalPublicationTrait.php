@@ -16,9 +16,16 @@ trait EditalPublicationTrait
 
         if ($notice) {
             $publications = $notice->publications->sortBy('publication_order');
-            $pub1 = $publications->where('publication_order', 1)->first();
-            $pub2 = $publications->where('publication_order', 2)->first();
-            $pub3 = $publications->where('publication_order', 3)->first();
+            $pub1 = $publications->first();
+            $pub2 = $publications->get(1);
+            $pub3 = $publications->get(2);
+
+            // Fallback para casos em que publication_order não está definido (prod com dados legacy).
+            if (! $pub1 && $publications->isNotEmpty()) {
+                $pub1 = $publications->first();
+                $pub2 = $publications->get(1);
+                $pub3 = $publications->get(2);
+            }
 
             $template->setValue('edital_edition_1', $pub1->edition ?? '___');
             $template->setValue('edital_num_1', $pub1->notice_number ?? '___');

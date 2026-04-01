@@ -5,6 +5,7 @@ use App\Models\AdversePossession;
 use App\Models\Notification;
 use App\Models\NotifiedPerson;
 use App\Models\User;
+use App\Services\DocumentGenerators\AdversePossessionNotificationPublicDocGenerator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 use function Pest\Laravel\actingAs;
@@ -82,6 +83,33 @@ it('downloads adverse possession edital with correct filename', function () {
 
     $response->assertOk();
     $response->assertHeader('content-disposition', 'attachment; filename="Edital de Notificacao Usucapiao 300.400.docx"');
+});
+
+it('sets pronoun treatment to notified people names in public adverse possession template', function () {
+    $adversePossession = AdversePossession::factory()->create([
+        'office' => 2,
+        'adverse_possession_property_registration' => '77777',
+        'adverse_possession_property_identification' => 'Parcela 1',
+    ]);
+
+    $notification = Notification::factory()
+        ->for($adversePossession, 'notifiable')
+        ->has(Address::factory()->count(1))
+        ->create(['protocol' => '600.700']);
+
+    $notification->notifiedPeople()->createMany([
+        ['name' => 'Anna Silva', 'document' => '11111111111', 'gender' => 'feminine'],
+        ['name' => 'Carlos Souza', 'document' => '12312312312', 'gender' => 'masculine'],
+    ]);
+
+    $notification->load(['notifiedPeople', 'addresses']);
+
+    $generator = new AdversePossessionNotificationPublicDocGenerator;
+    $filePath = $generator->generate($notification);
+
+    $xml = file_get_contents("zip://{$filePath}#word/document.xml");
+
+    expect(str_contains($xml, 'ANNA SILVA, CARLOS SOUZA.'))->toBeTrue();
 });
 
 it('defaults to private variant when no variant is specified for adverse possession', function () {

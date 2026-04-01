@@ -159,4 +159,20 @@ trait DocumentFormatterTrait
 
         return $integerText;
     }
+
+    /**
+     * Format the pronoun treatment field as a list of notified people names ending with a period.
+     */
+    protected function buildPronounTreatmentFromNotifiedPeople($notification): string
+    {
+        $names = $notification->notifiedPeople->pluck('name')->filter()->map(fn ($name) => mb_strtoupper(trim($name)))->all();
+
+        if (empty($names)) {
+            return 'Vossa Senhoria';
+        }
+
+        $text = implode(', ', $names);
+
+        return rtrim($text, ' .,').'.';
+    }
 }

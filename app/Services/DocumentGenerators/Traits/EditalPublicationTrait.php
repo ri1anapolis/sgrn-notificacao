@@ -20,7 +20,6 @@ trait EditalPublicationTrait
             $pub2 = $publications->get(1);
             $pub3 = $publications->get(2);
 
-            // Fallback para casos em que publication_order não está definido (prod com dados legacy).
             if (! $pub1 && $publications->isNotEmpty()) {
                 $pub1 = $publications->first();
                 $pub2 = $publications->get(1);

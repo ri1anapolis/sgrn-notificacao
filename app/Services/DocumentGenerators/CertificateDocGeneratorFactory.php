@@ -43,10 +43,12 @@ class CertificateDocGeneratorFactory
             return new CertificateMovableAlienationDocGenerator;
         }
 
+        /* Commented out to always return CertificateEditalDocGenerator, as per new requirement.
+         * If we need to revert to previous logic, we can uncomment this block.
+         *
         if ($this->hasSuccessfulDiligence($notification)) {
             return new CertificateStandardDocGenerator;
-        }
-
+        }*/
         return new CertificateEditalDocGenerator;
     }
 

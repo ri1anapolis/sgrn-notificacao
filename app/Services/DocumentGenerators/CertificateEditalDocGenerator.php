@@ -22,6 +22,9 @@ class CertificateEditalDocGenerator extends BaseCertificateDocGenerator
         $template->setValue('verb_debtors', $genderData['verb_debtors']);
         $template->setValue('verb_debtor_article', $genderData['verb_debtor_article']);
 
+        $contractualClause = optional($notification->notifiable)->contractual_clause ?? '';
+        $template->setValue('contractual_clause', $contractualClause);
+
         $this->fillDigitalContactData($template, $notification);
         $this->fillEditalPublications($template, $notification);
     }

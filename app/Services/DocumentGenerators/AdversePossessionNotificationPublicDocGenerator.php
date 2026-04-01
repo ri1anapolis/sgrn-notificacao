@@ -49,7 +49,10 @@ class AdversePossessionNotificationPublicDocGenerator implements DocumentGenerat
         $template->setValue('date', $dateString);
 
         $template->setValue('vocative', 'Senhor,');
-        $template->setValue('pronoum_treatment', 'Vossa Senhoria');
+
+        $pronounTreatment = $this->buildPronounTreatmentFromNotifiedPeople($notification);
+        $template->setValue('pronoun_treatment', $pronounTreatment);
+        $template->setValue('pronoum_treatment', $pronounTreatment);
     }
 
     private function fillSpecificData(TemplateProcessor $template, Notification $notification): void

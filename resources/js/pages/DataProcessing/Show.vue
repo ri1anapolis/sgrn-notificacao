@@ -2,7 +2,7 @@
 
 import { useToast } from 'vue-toastification';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, router } from '@inertiajs/vue3';
 import { computed, ref, watch, onMounted } from 'vue';
 import DataProcessingHeader from './components/DataProcessingHeader.vue';
 import NotificationForm from './components/NotificationForm.vue';
@@ -94,6 +94,11 @@ const closeAllModals = () => {
     showDigitalContactSelectModal.value = false;
     showDigitalContactFormModal.value = false;
     selectedPerson.value = null;
+};
+
+const onDigitalContactSaved = () => {
+    // Recarrega o estado do Inertia para atualizar digital_contact em notified_people
+    router.reload({ preserveState: true, preserveScroll: true });
 };
 
 const submit = () => {
@@ -299,7 +304,7 @@ const downloadAdversePossessionEdital = () => {
             @close="showDigitalContactSelectModal = false" @select="onPersonSelected" />
 
         <DigitalContactFormModal :show="showDigitalContactFormModal" :notification-protocol="notification.protocol"
-            :person="selectedPerson" @close="closeAllModals" @back="onBackToPersonSelect" />
+            :person="selectedPerson" @close="closeAllModals" @back="onBackToPersonSelect" @saved="onDigitalContactSaved" />
 
         <NotificationTypeModal :show="showNotificationTypeModal" :notification-protocol="notification.protocol"
             @close="showNotificationTypeModal = false" @select="downloadNotificationWithVariant" />

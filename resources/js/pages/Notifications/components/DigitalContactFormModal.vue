@@ -12,7 +12,7 @@ const props = defineProps<{
     person: App.Data.NotifiedPersonData | null;
 }>();
 
-const emit = defineEmits(['close', 'back']);
+const emit = defineEmits(['close', 'back', 'saved']);
 const toast = useToast();
 
 const form = useForm({
@@ -62,6 +62,7 @@ const submit = () => {
         preserveScroll: true,
         onSuccess: () => {
             toast.success('Contato registrado com sucesso!');
+            emit('saved');
             emit('close');
         },
         onError: () => {

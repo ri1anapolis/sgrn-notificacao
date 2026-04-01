@@ -32,7 +32,7 @@ abstract class BaseCertificateDocGenerator implements DocumentGeneratorInterface
             'digitalContacts.notifiedPerson',
         ]);
 
-        $templatePath = $this->getTemplatePath();
+        $templatePath = $this->prepareTemplate($this->getTemplatePath());
         if (! file_exists($templatePath)) {
             throw new Exception("Modelo de documento não encontrado: {$templatePath}");
         }
@@ -55,6 +55,127 @@ abstract class BaseCertificateDocGenerator implements DocumentGeneratorInterface
      * Default implementation does nothing.
      */
     protected function fillAdditionalData(TemplateProcessor $template, Notification $notification): void {}
+
+    /**
+     * Prepare template path, normalizing placeholders in DOCX so split runs do not break replacement.
+     */
+    protected function prepareTemplate(string $templatePath): string
+    {
+        if (strtolower(pathinfo($templatePath, PATHINFO_EXTENSION)) !== 'docx') {
+            return $templatePath;
+        }
+
+        $normalizedPath = tempnam(sys_get_temp_dir(), 'template_').'.docx';
+        copy($templatePath, $normalizedPath);
+
+        $this->normalizeSplitPlaceholdersInDocx($normalizedPath);
+
+        return $normalizedPath;
+    }
+
+    /**
+     * Normalize placeholders in template XML so placeholders split by Word runs are contiguous.
+     */
+    protected function normalizeSplitPlaceholdersInDocx(string $docxPath): void
+    {
+        $zip = new \ZipArchive;
+        if ($zip->open($docxPath) !== true) {
+            return;
+        }
+
+        $entries = [
+            'word/document.xml',
+            'word/header1.xml',
+            'word/footer1.xml',
+        ];
+
+        foreach ($entries as $entry) {
+            $index = $zip->locateName($entry);
+            if ($index === false) {
+                continue;
+            }
+
+            $content = $zip->getFromIndex($index);
+            if ($content === false) {
+                continue;
+            }
+
+            $normalized = $this->normalizeSplitPlaceholdersInXml($content);
+            if ($normalized !== $content) {
+                $zip->addFromString($entry, $normalized);
+            }
+        }
+
+        $zip->close();
+    }
+
+    /**
+     * Compress split placeholder runs in XML into contiguous placeholder tokens.
+     */
+    protected function normalizeSplitPlaceholdersInXml(string $xml): string
+    {
+        if (! preg_match_all('/<w:t(?:[^>]*)>(.*?)<\/w:t>/s', $xml, $matches, PREG_OFFSET_CAPTURE)) {
+            return $xml;
+        }
+
+        $segments = [];
+        foreach ($matches[1] as $idx => $match) {
+            $fullMatch = $matches[0][$idx];
+            $segments[] = [
+                'text' => $match[0],
+                'fullStart' => $fullMatch[1],
+                'fullEnd' => $fullMatch[1] + strlen($fullMatch[0]),
+            ];
+        }
+
+        $plain = '';
+        $charMap = [];
+        foreach ($segments as $segIndex => $segment) {
+            $text = $segment['text'];
+            for ($i = 0; $i < strlen($text); $i++) {
+                $plain .= $text[$i];
+                $charMap[] = ['segment' => $segIndex, 'offset' => $i];
+            }
+        }
+
+        if (! preg_match_all('/\$\{[A-Za-z0-9_]+\}/', $plain, $phMatches, PREG_OFFSET_CAPTURE)) {
+            return $xml;
+        }
+
+        // Iterate from right to left to preserve offsets while replacing.
+        foreach (array_reverse($phMatches[0]) as $phMatch) {
+            $placeholder = $phMatch[0];
+            $start = $phMatch[1];
+            $end = $start + strlen($placeholder);
+
+            $startSeg = $charMap[$start]['segment'];
+            $endSeg = $charMap[$end - 1]['segment'];
+
+            if ($startSeg === $endSeg) {
+                continue;
+            }
+
+            $firstSeg = $segments[$startSeg];
+            $lastSeg = $segments[$endSeg];
+
+            $prefix = substr($firstSeg['text'], 0, $charMap[$start]['offset']);
+            $suffix = substr($lastSeg['text'], $charMap[$end - 1]['offset'] + 1);
+            $replacementText = $prefix.$placeholder.$suffix;
+
+            preg_match('/^(<w:t[^>]*>)/', substr($xml, $firstSeg['fullStart'], $firstSeg['fullEnd'] - $firstSeg['fullStart']), $tagMatch);
+            $openTag = $tagMatch[1] ?? '<w:t>';
+
+            $replacement = $openTag.htmlspecialchars($replacementText, ENT_NOQUOTES).' </w:t>';
+            $replacement = str_replace(' </w:t>', '</w:t>', $replacement); // fix spacing from htmlspecialchars.
+
+            $xml = substr_replace($xml, $replacement, $firstSeg['fullStart'], $lastSeg['fullEnd'] - $firstSeg['fullStart']);
+
+            // Re-run normalization recursively for new XML structure.
+            return $this->normalizeSplitPlaceholdersInXml($xml);
+        }
+
+        return $xml;
+    }
 
     protected function fillBasicData(TemplateProcessor $template, Notification $notification): void
     {

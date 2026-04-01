@@ -19,6 +19,11 @@ class TemplateResolver
             return $customPath;
         }
 
+        $resourcePath = resource_path("templates/default/{$slug}.docx");
+        if (file_exists($resourcePath)) {
+            return $resourcePath;
+        }
+
         return storage_path("app/templates/default/{$slug}.docx");
     }
 }
